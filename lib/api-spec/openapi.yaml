@@ -1,22 +1,49 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CPCBusiness Enterprise Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: dashboard
+    description: Dashboard analytics
+  - name: leads
+    description: Lead management CRM
+  - name: clients
+    description: Client management
+  - name: projects
+    description: Project management
+  - name: tasks
+    description: Task management
+  - name: team
+    description: Team management
+  - name: invoices
+    description: Finance & invoicing
+  - name: tickets
+    description: Support tickets
+  - name: services
+    description: Services CMS
+  - name: portfolio
+    description: Portfolio items
+  - name: messages
+    description: Messaging
+  - name: notifications
+    description: Notifications
+  - name: ai
+    description: AI features
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +51,2006 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── AUTH ────────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── DASHBOARD ───────────────────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/revenue:
+    get:
+      operationId: getRevenueChart
+      tags: [dashboard]
+      summary: Get monthly revenue chart data
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RevenueDataPoint"
+
+  /dashboard/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent activity feed
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /dashboard/pipeline:
+    get:
+      operationId: getLeadPipeline
+      tags: [dashboard]
+      summary: Get lead pipeline summary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PipelineStage"
+
+  # ─── LEADS ───────────────────────────────────────────────────────────────────
+  /leads:
+    get:
+      operationId: getLeads
+      tags: [leads]
+      summary: List leads
+      parameters:
+        - name: stage
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lead"
+    post:
+      operationId: createLead
+      tags: [leads]
+      summary: Create lead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+
+  /leads/{id}:
+    get:
+      operationId: getLead
+      tags: [leads]
+      summary: Get lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+    patch:
+      operationId: updateLead
+      tags: [leads]
+      summary: Update lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+    delete:
+      operationId: deleteLead
+      tags: [leads]
+      summary: Delete lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── CLIENTS ─────────────────────────────────────────────────────────────────
+  /clients:
+    get:
+      operationId: getClients
+      tags: [clients]
+      summary: List clients
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Client"
+    post:
+      operationId: createClient
+      tags: [clients]
+      summary: Create client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+
+  /clients/{id}:
+    get:
+      operationId: getClient
+      tags: [clients]
+      summary: Get client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+    patch:
+      operationId: updateClient
+      tags: [clients]
+      summary: Update client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+    delete:
+      operationId: deleteClient
+      tags: [clients]
+      summary: Delete client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── PROJECTS ────────────────────────────────────────────────────────────────
+  /projects:
+    get:
+      operationId: getProjects
+      tags: [projects]
+      summary: List projects
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: clientId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /projects/{id}/stats:
+    get:
+      operationId: getProjectStats
+      tags: [projects]
+      summary: Get project stats
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectStats"
+
+  # ─── TASKS ───────────────────────────────────────────────────────────────────
+  /tasks:
+    get:
+      operationId: getTasks
+      tags: [tasks]
+      summary: List tasks
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+        - name: assigneeId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Create task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /tasks/{id}:
+    patch:
+      operationId: updateTask
+      tags: [tasks]
+      summary: Update task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    delete:
+      operationId: deleteTask
+      tags: [tasks]
+      summary: Delete task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── TEAM ────────────────────────────────────────────────────────────────────
+  /team:
+    get:
+      operationId: getTeamMembers
+      tags: [team]
+      summary: List team members
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeamMember"
+    post:
+      operationId: createTeamMember
+      tags: [team]
+      summary: Create team member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamMemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamMember"
+
+  /team/{id}:
+    patch:
+      operationId: updateTeamMember
+      tags: [team]
+      summary: Update team member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamMemberUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamMember"
+    delete:
+      operationId: deleteTeamMember
+      tags: [team]
+      summary: Delete team member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── INVOICES ────────────────────────────────────────────────────────────────
+  /invoices:
+    get:
+      operationId: getInvoices
+      tags: [invoices]
+      summary: List invoices
+      parameters:
+        - name: clientId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Invoice"
+    post:
+      operationId: createInvoice
+      tags: [invoices]
+      summary: Create invoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+
+  /invoices/{id}:
+    get:
+      operationId: getInvoice
+      tags: [invoices]
+      summary: Get invoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+    patch:
+      operationId: updateInvoice
+      tags: [invoices]
+      summary: Update invoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+
+  /invoices/finance/summary:
+    get:
+      operationId: getFinanceSummary
+      tags: [invoices]
+      summary: Get finance summary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinanceSummary"
+
+  # ─── TICKETS ─────────────────────────────────────────────────────────────────
+  /tickets:
+    get:
+      operationId: getTickets
+      tags: [tickets]
+      summary: List tickets
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+        - name: clientId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ticket"
+    post:
+      operationId: createTicket
+      tags: [tickets]
+      summary: Create ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+
+  /tickets/{id}:
+    get:
+      operationId: getTicket
+      tags: [tickets]
+      summary: Get ticket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+    patch:
+      operationId: updateTicket
+      tags: [tickets]
+      summary: Update ticket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+
+  # ─── SERVICES CMS ────────────────────────────────────────────────────────────
+  /services:
+    get:
+      operationId: getServices
+      tags: [services]
+      summary: List services
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+    post:
+      operationId: createService
+      tags: [services]
+      summary: Create service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+
+  /services/{id}:
+    patch:
+      operationId: updateService
+      tags: [services]
+      summary: Update service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+    delete:
+      operationId: deleteService
+      tags: [services]
+      summary: Delete service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── PORTFOLIO ───────────────────────────────────────────────────────────────
+  /portfolio:
+    get:
+      operationId: getPortfolioItems
+      tags: [portfolio]
+      summary: List portfolio items
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PortfolioItem"
+    post:
+      operationId: createPortfolioItem
+      tags: [portfolio]
+      summary: Create portfolio item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PortfolioItemInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortfolioItem"
+
+  /portfolio/{id}:
+    patch:
+      operationId: updatePortfolioItem
+      tags: [portfolio]
+      summary: Update portfolio item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PortfolioItemUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortfolioItem"
+    delete:
+      operationId: deletePortfolioItem
+      tags: [portfolio]
+      summary: Delete portfolio item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── MESSAGES ────────────────────────────────────────────────────────────────
+  /messages:
+    get:
+      operationId: getMessages
+      tags: [messages]
+      summary: Get messages for a conversation
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+        - name: recipientId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  # ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+  /notifications:
+    get:
+      operationId: getNotifications
+      tags: [notifications]
+      summary: List notifications
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /notifications/read-all:
+    patch:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── AI ──────────────────────────────────────────────────────────────────────
+  /ai/generate-content:
+    post:
+      operationId: generateContent
+      tags: [ai]
+      summary: Generate AI content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiContentInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiContentResponse"
+
+  /ai/generate-proposal:
+    post:
+      operationId: generateProposal
+      tags: [ai]
+      summary: Generate AI proposal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiProposalInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiContentResponse"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    # ─── AUTH SCHEMAS ───────────────────────────────────────────────────────
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    RegisterInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      required: [id, name, email, role, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        department:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    # ─── DASHBOARD SCHEMAS ──────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [totalRevenue, totalLeads, totalProjects, totalClients, totalTeamMembers, openTickets, pendingTasks, conversionRate]
+      properties:
+        totalRevenue:
+          type: number
+        totalLeads:
+          type: integer
+        totalProjects:
+          type: integer
+        totalClients:
+          type: integer
+        totalTeamMembers:
+          type: integer
+        openTickets:
+          type: integer
+        pendingTasks:
+          type: integer
+        conversionRate:
+          type: number
+
+    RevenueDataPoint:
+      type: object
+      required: [month, revenue, expenses]
+      properties:
+        month:
+          type: string
+        revenue:
+          type: number
+        expenses:
+          type: number
+
+    ActivityItem:
+      type: object
+      required: [id, type, description, createdAt]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        description:
+          type: string
+        userId:
+          type: ["integer", "null"]
+        userName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    PipelineStage:
+      type: object
+      required: [stage, count, value]
+      properties:
+        stage:
+          type: string
+        count:
+          type: integer
+        value:
+          type: number
+
+    # ─── LEAD SCHEMAS ───────────────────────────────────────────────────────
+    Lead:
+      type: object
+      required: [id, name, email, stage, source, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        company:
+          type: ["string", "null"]
+        stage:
+          type: string
+        source:
+          type: string
+        value:
+          type: ["number", "null"]
+        assignedTo:
+          type: ["integer", "null"]
+        assigneeName:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    LeadInput:
+      type: object
+      required: [name, email, stage, source]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        company:
+          type: string
+        stage:
+          type: string
+        source:
+          type: string
+        value:
+          type: number
+        assignedTo:
+          type: integer
+        notes:
+          type: string
+
+    LeadUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        company:
+          type: string
+        stage:
+          type: string
+        source:
+          type: string
+        value:
+          type: number
+        assignedTo:
+          type: integer
+        notes:
+          type: string
+
+    # ─── CLIENT SCHEMAS ─────────────────────────────────────────────────────
+    Client:
+      type: object
+      required: [id, name, email, status, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        company:
+          type: ["string", "null"]
+        industry:
+          type: ["string", "null"]
+        status:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        totalSpent:
+          type: ["number", "null"]
+        projectCount:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    ClientInput:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        company:
+          type: string
+        industry:
+          type: string
+        address:
+          type: string
+
+    ClientUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        company:
+          type: string
+        industry:
+          type: string
+        status:
+          type: string
+        address:
+          type: string
+
+    # ─── PROJECT SCHEMAS ────────────────────────────────────────────────────
+    Project:
+      type: object
+      required: [id, name, status, priority, startDate, endDate, progress, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        clientId:
+          type: ["integer", "null"]
+        clientName:
+          type: ["string", "null"]
+        status:
+          type: string
+        priority:
+          type: string
+        progress:
+          type: integer
+        budget:
+          type: ["number", "null"]
+        spent:
+          type: ["number", "null"]
+        startDate:
+          type: string
+        endDate:
+          type: string
+        teamMembers:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+
+    ProjectInput:
+      type: object
+      required: [name, status, priority, startDate, endDate]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        clientId:
+          type: integer
+        status:
+          type: string
+        priority:
+          type: string
+        budget:
+          type: number
+        startDate:
+          type: string
+        endDate:
+          type: string
+
+    ProjectUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        priority:
+          type: string
+        progress:
+          type: integer
+        budget:
+          type: number
+        spent:
+          type: number
+        endDate:
+          type: string
+
+    ProjectStats:
+      type: object
+      required: [totalTasks, completedTasks, openTickets, teamSize, daysRemaining]
+      properties:
+        totalTasks:
+          type: integer
+        completedTasks:
+          type: integer
+        openTickets:
+          type: integer
+        teamSize:
+          type: integer
+        daysRemaining:
+          type: integer
+
+    # ─── TASK SCHEMAS ───────────────────────────────────────────────────────
+    Task:
+      type: object
+      required: [id, title, status, priority, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        projectId:
+          type: ["integer", "null"]
+        projectName:
+          type: ["string", "null"]
+        assigneeId:
+          type: ["integer", "null"]
+        assigneeName:
+          type: ["string", "null"]
+        status:
+          type: string
+        priority:
+          type: string
+        dueDate:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    TaskInput:
+      type: object
+      required: [title, status, priority]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        projectId:
+          type: integer
+        assigneeId:
+          type: integer
+        status:
+          type: string
+        priority:
+          type: string
+        dueDate:
+          type: string
+
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        priority:
+          type: string
+        assigneeId:
+          type: integer
+        dueDate:
+          type: string
+
+    # ─── TEAM SCHEMAS ───────────────────────────────────────────────────────
+    TeamMember:
+      type: object
+      required: [id, name, email, role, department, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        department:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        phone:
+          type: ["string", "null"]
+        skills:
+          type: array
+          items:
+            type: string
+        activeProjects:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    TeamMemberInput:
+      type: object
+      required: [name, email, role, department]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        department:
+          type: string
+        phone:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+
+    TeamMemberUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        department:
+          type: string
+        isActive:
+          type: boolean
+        phone:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+
+    # ─── INVOICE SCHEMAS ────────────────────────────────────────────────────
+    Invoice:
+      type: object
+      required: [id, invoiceNumber, clientId, status, total, issueDate, dueDate, createdAt]
+      properties:
+        id:
+          type: integer
+        invoiceNumber:
+          type: string
+        clientId:
+          type: integer
+        clientName:
+          type: string
+        projectId:
+          type: ["integer", "null"]
+        projectName:
+          type: ["string", "null"]
+        status:
+          type: string
+        subtotal:
+          type: number
+        tax:
+          type: number
+        total:
+          type: number
+        currency:
+          type: string
+        issueDate:
+          type: string
+        dueDate:
+          type: string
+        paidDate:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvoiceLineItem"
+        createdAt:
+          type: string
+
+    InvoiceLineItem:
+      type: object
+      required: [description, quantity, unitPrice, total]
+      properties:
+        description:
+          type: string
+        quantity:
+          type: number
+        unitPrice:
+          type: number
+        total:
+          type: number
+
+    InvoiceInput:
+      type: object
+      required: [clientId, issueDate, dueDate, items]
+      properties:
+        clientId:
+          type: integer
+        projectId:
+          type: integer
+        issueDate:
+          type: string
+        dueDate:
+          type: string
+        currency:
+          type: string
+        tax:
+          type: number
+        notes:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvoiceLineItem"
+
+    InvoiceUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        paidDate:
+          type: string
+        notes:
+          type: string
+
+    FinanceSummary:
+      type: object
+      required: [totalRevenue, totalPending, totalOverdue, totalPaid, invoiceCount]
+      properties:
+        totalRevenue:
+          type: number
+        totalPending:
+          type: number
+        totalOverdue:
+          type: number
+        totalPaid:
+          type: number
+        invoiceCount:
+          type: integer
+
+    # ─── TICKET SCHEMAS ─────────────────────────────────────────────────────
+    Ticket:
+      type: object
+      required: [id, subject, status, priority, createdAt]
+      properties:
+        id:
+          type: integer
+        subject:
+          type: string
+        description:
+          type: string
+        clientId:
+          type: ["integer", "null"]
+        clientName:
+          type: ["string", "null"]
+        assigneeId:
+          type: ["integer", "null"]
+        assigneeName:
+          type: ["string", "null"]
+        status:
+          type: string
+        priority:
+          type: string
+        category:
+          type: ["string", "null"]
+        resolution:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    TicketInput:
+      type: object
+      required: [subject, description, priority]
+      properties:
+        subject:
+          type: string
+        description:
+          type: string
+        clientId:
+          type: integer
+        priority:
+          type: string
+        category:
+          type: string
+
+    TicketUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        priority:
+          type: string
+        assigneeId:
+          type: integer
+        resolution:
+          type: string
+
+    # ─── SERVICE CMS SCHEMAS ────────────────────────────────────────────────
+    Service:
+      type: object
+      required: [id, title, category, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        shortDescription:
+          type: ["string", "null"]
+        iconName:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        features:
+          type: array
+          items:
+            type: string
+        technologies:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+
+    ServiceInput:
+      type: object
+      required: [title, category, description]
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        shortDescription:
+          type: string
+        iconName:
+          type: string
+        imageUrl:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        technologies:
+          type: array
+          items:
+            type: string
+        sortOrder:
+          type: integer
+
+    ServiceUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        shortDescription:
+          type: string
+        iconName:
+          type: string
+        imageUrl:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        technologies:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        sortOrder:
+          type: integer
+
+    # ─── PORTFOLIO SCHEMAS ──────────────────────────────────────────────────
+    PortfolioItem:
+      type: object
+      required: [id, title, category, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        category:
+          type: string
+        client:
+          type: ["string", "null"]
+        description:
+          type: string
+        shortDescription:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        technologies:
+          type: array
+          items:
+            type: string
+        results:
+          type: ["string", "null"]
+        liveUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        isFeatured:
+          type: boolean
+        createdAt:
+          type: string
+
+    PortfolioItemInput:
+      type: object
+      required: [title, category, description]
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+        client:
+          type: string
+        description:
+          type: string
+        shortDescription:
+          type: string
+        imageUrl:
+          type: string
+        technologies:
+          type: array
+          items:
+            type: string
+        results:
+          type: string
+        liveUrl:
+          type: string
+        isFeatured:
+          type: boolean
+
+    PortfolioItemUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        technologies:
+          type: array
+          items:
+            type: string
+        results:
+          type: string
+        isActive:
+          type: boolean
+        isFeatured:
+          type: boolean
+
+    # ─── MESSAGE SCHEMAS ────────────────────────────────────────────────────
+    Message:
+      type: object
+      required: [id, senderId, senderName, content, createdAt]
+      properties:
+        id:
+          type: integer
+        senderId:
+          type: integer
+        senderName:
+          type: string
+        senderAvatarUrl:
+          type: ["string", "null"]
+        recipientId:
+          type: ["integer", "null"]
+        projectId:
+          type: ["integer", "null"]
+        content:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+
+    MessageInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+        recipientId:
+          type: integer
+        projectId:
+          type: integer
+
+    # ─── NOTIFICATION SCHEMAS ───────────────────────────────────────────────
+    Notification:
+      type: object
+      required: [id, title, type, isRead, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: ["string", "null"]
+        type:
+          type: string
+        isRead:
+          type: boolean
+        link:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    # ─── AI SCHEMAS ─────────────────────────────────────────────────────────
+    AiContentInput:
+      type: object
+      required: [type, prompt]
+      properties:
+        type:
+          type: string
+        prompt:
+          type: string
+        tone:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+
+    AiProposalInput:
+      type: object
+      required: [clientName, projectType, budget]
+      properties:
+        clientName:
+          type: string
+        projectType:
+          type: string
+        budget:
+          type: number
+        requirements:
+          type: string
+        timeline:
+          type: string
+
+    AiContentResponse:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+        wordCount:
+          type: integer

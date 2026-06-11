@@ -1,0 +1,643 @@
+# CPCBUSINESS - ENTERPRISE DIGITAL AGENCY PLATFORM
+
+You are a world-class team of Senior UI/UX Designers, Product Architects, SaaS Engineers, AI Engineers, Motion Designers, DevOps Engineers, and Security Experts.
+
+Build a complete enterprise-grade digital agency platform called:
+
+# CPCBUSINESS
+
+This is not just a company website.
+
+It is a complete ecosystem consisting of:
+
+1. Public Marketing Website
+2. Client Portal
+3. Master Admin Panel
+4. CRM
+5. Project Management System
+6. AI Automation System
+7. Invoice & Billing System
+8. Team Management Portal
+9. Lead Management System
+10. Marketplace Module
+11. Knowledge Base & Documentation
+12. Ticket Support System
+13. Real-Time Communication System
+
+The platform must feel more premium than:
+
+* Apple
+* Stripe
+* Framer
+* Linear
+* Vercel
+* Notion
+* Webflow
+
+with elegant motion design, luxury aesthetics, smooth transitions, and world-class user experience.
+
+---
+
+# DESIGN SYSTEM
+
+Use:
+
+* Material UI Latest Version
+* React 19
+* TypeScript
+* Tailwind CSS
+* Framer Motion
+* GSAP
+* Three.js
+* React Query
+* Zustand
+* ShadCN Components
+* PostgreSQL
+* Node.js
+* Express
+* Socket.io
+
+---
+
+# DESIGN STYLE
+
+Create a premium modern IT company experience.
+
+Theme:
+
+* Dark Luxury Theme
+* Glassmorphism
+* Neumorphism
+* Aurora Effects
+* Animated Gradients
+* Smooth Material Motion
+
+Primary Colors:
+
+* Emerald Green
+* Neon Green
+* Dark Charcoal
+* Premium Black
+* White
+
+Animations should be:
+
+* Smooth
+* Elegant
+* Professional
+* Performance Optimized
+
+No cheap animations.
+
+Every interaction should feel premium.
+
+---
+
+# PUBLIC WEBSITE
+
+Create fully editable pages:
+
+## Home
+
+Sections:
+
+* Hero Banner
+* Animated Background
+* Company Introduction
+* Why Choose CPCBusiness
+* Services
+* Technologies
+* Industries
+* Portfolio Showcase
+* Client Success Stories
+* Testimonials
+* Team
+* Statistics Counter
+* Process Workflow
+* FAQ
+* Contact Form
+* Call Scheduling
+* Newsletter
+
+---
+
+## Services
+
+Fully Dynamic.
+
+Categories:
+
+* Web Development
+* Mobile App Development
+* AI Development
+* SaaS Development
+* CRM Development
+* ERP Development
+* Cloud Solutions
+* UI/UX Design
+* E-commerce Development
+* DevOps
+* Digital Marketing
+* SEO
+
+Each service page editable from admin.
+
+---
+
+## Projects Portfolio
+
+Advanced portfolio showcase.
+
+Features:
+
+* Category Filter
+* Industry Filter
+* Search
+* Case Studies
+* Before/After Results
+* Screenshots
+* Videos
+* Client Feedback
+
+---
+
+## About Us
+
+Editable:
+
+* Company Story
+* Mission
+* Vision
+* Team
+* Values
+* Certifications
+* Awards
+
+---
+
+## Testimonials
+
+Video Testimonials
+
+Text Testimonials
+
+Google Reviews Integration
+
+Approval Workflow
+
+---
+
+## Contact
+
+Contact Form
+
+Google Maps
+
+Calendly Integration
+
+WhatsApp Integration
+
+Live Chat
+
+---
+
+# CLIENT PORTAL
+
+Create a professional client portal.
+
+Client Login
+
+Client Registration
+
+Email Verification
+
+OTP Verification
+
+Google Login
+
+Microsoft Login
+
+---
+
+## CLIENT DASHBOARD
+
+Show:
+
+* Active Projects
+* Pending Tasks
+* Completed Tasks
+* Payments
+* Invoices
+* Team Members
+* Project Timeline
+* Notifications
+
+---
+
+## PROJECT MANAGEMENT
+
+Each client can:
+
+* View Project Progress
+* Upload Files
+* Download Files
+* View Milestones
+* Approve Deliverables
+* Track Deadlines
+
+Kanban Board
+
+Timeline View
+
+Calendar View
+
+Gantt Chart
+
+---
+
+## CLIENT CHAT SYSTEM
+
+Real-Time Messaging
+
+Features:
+
+* Individual Chat
+* Team Chat
+* Attachments
+* Voice Notes
+* Emoji Support
+* Read Receipts
+* Typing Indicator
+
+Use Socket.io.
+
+---
+
+## SUPPORT CENTER
+
+Create Ticket System.
+
+Ticket Status:
+
+* Open
+* Pending
+* In Progress
+* Completed
+* Closed
+
+Priority:
+
+* Low
+* Medium
+* High
+* Critical
+
+---
+
+## CLIENT DOCUMENT VAULT
+
+Secure storage.
+
+Store:
+
+* Agreements
+* Invoices
+* Reports
+* Deliverables
+* Assets
+
+Folder Structure.
+
+Version History.
+
+---
+
+# MASTER ADMIN PANEL
+
+Build an advanced enterprise admin panel.
+
+---
+
+## DASHBOARD
+
+Show:
+
+* Revenue
+* Leads
+* Projects
+* Clients
+* Team Members
+* Tickets
+* Tasks
+* Conversion Rate
+
+Interactive charts.
+
+---
+
+## LEAD MANAGEMENT CRM
+
+Manage:
+
+* Leads
+* Prospects
+* Clients
+
+Lead Pipeline:
+
+* New Lead
+* Contacted
+* Qualified
+* Proposal Sent
+* Negotiation
+* Won
+* Lost
+
+---
+
+## CLIENT MANAGEMENT
+
+Features:
+
+* Add Client
+* Edit Client
+* Project Assignment
+* Communication History
+* Payment History
+* Documents
+
+---
+
+## TEAM MANAGEMENT
+
+Roles:
+
+* Super Admin
+* Admin
+* Project Manager
+* Sales Manager
+* Developer
+* Designer
+* Marketing Executive
+* Client
+
+Permissions Matrix.
+
+---
+
+## CMS BUILDER
+
+Allow complete website editing.
+
+Editable:
+
+* Text
+* Images
+* Videos
+* Buttons
+* Sections
+* Menus
+* Footer
+
+Drag-and-drop page builder.
+
+No coding required.
+
+---
+
+## PROJECT MANAGEMENT
+
+Admin can:
+
+* Create Project
+* Assign Team
+* Create Tasks
+* Create Milestones
+* Monitor Progress
+
+---
+
+## FINANCE MODULE
+
+Create:
+
+* Quotations
+* Proposals
+* Invoices
+* Payments
+* Expenses
+* Revenue Reports
+
+GST Support.
+
+PDF Export.
+
+---
+
+## MARKETPLACE MODULE
+
+Include:
+
+* Products
+* Categories
+* Customers
+* Orders
+* Reviews
+* Discounts
+* Coupons
+
+Exactly like enterprise marketplace systems.
+
+---
+
+## ANALYTICS CENTER
+
+Website Analytics
+
+Client Analytics
+
+Revenue Analytics
+
+Lead Analytics
+
+Project Analytics
+
+Traffic Analytics
+
+Device Analytics
+
+Marketing Analytics
+
+---
+
+## THEME CUSTOMIZATION
+
+Allow admin to change:
+
+* Colors
+* Typography
+* Layouts
+* Sidebar
+* Header
+* Footer
+
+Dark Mode
+
+Light Mode
+
+Custom Themes
+
+Live Preview
+
+---
+
+# AI FEATURES
+
+Create dedicated AI Center.
+
+---
+
+## AI CONTENT WRITER
+
+Generate:
+
+* Blogs
+* Service Pages
+* SEO Content
+* Social Media Posts
+* Landing Pages
+
+Use OpenAI API.
+
+---
+
+## AI PROPOSAL GENERATOR
+
+Generate client proposals automatically.
+
+---
+
+## AI PROJECT ASSISTANT
+
+Project summaries.
+
+Task recommendations.
+
+Timeline predictions.
+
+Risk analysis.
+
+---
+
+## AI CHATBOT
+
+Website AI Assistant.
+
+Client Support Bot.
+
+Lead Qualification Bot.
+
+---
+
+## AI SEO MODULE
+
+Generate:
+
+* Meta Titles
+* Meta Descriptions
+* Keywords
+* Schema Markup
+
+---
+
+# AUTOMATION SYSTEM
+
+Workflow Builder.
+
+Examples:
+
+If Lead Created → Assign Sales Manager.
+
+If Invoice Paid → Notify Team.
+
+If Ticket Created → Create Task.
+
+If Project Completed → Request Review.
+
+---
+
+# SECURITY
+
+Enterprise Grade Security.
+
+Implement:
+
+* JWT
+* OAuth
+* Role Based Access
+* Audit Logs
+* Session Management
+* IP Tracking
+* Activity Monitoring
+* 2FA Authentication
+* Google Authenticator
+
+---
+
+# PERFORMANCE
+
+Target:
+
+* 95+ Lighthouse Score
+* Mobile First
+* SEO Optimized
+* Lazy Loading
+* Code Splitting
+* CDN Ready
+
+---
+
+# EXTRA FEATURES
+
+Add premium features not shown in screenshots:
+
+1. Employee Attendance
+2. Leave Management
+3. Meeting Scheduler
+4. Zoom Integration
+5. Google Meet Integration
+6. AI Meeting Notes
+7. Internal Team Chat
+8. Knowledge Base
+9. Client Feedback System
+10. Referral Program
+11. Affiliate Management
+12. White Label Client Portal
+13. Multi Company Support
+14. Multi Language Support
+15. Mobile App Ready APIs
+16. Push Notifications
+17. Email Marketing Module
+18. WhatsApp Marketing Module
+19. Social Media Scheduler
+20. API Access for Third Party Integrations
+
+---
+
+# FINAL REQUIREMENT
+
+Build this as a production-ready SaaS platform with:
+
+* Public Website
+* Client Portal
+* Master Admin Panel
+
+Everything should be interconnected.
+
+All website content must be editable from admin.
+
+All modules must be responsive.
+
+Code must be clean, scalable, modular, enterprise-grade, and deployment-ready.
+
+Create database schema, API architecture, role permissions, dashboard UI, animations, workflows, AI integrations, CMS builder, CRM, and all necessary backend services.

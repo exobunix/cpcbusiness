@@ -1,0 +1,2 @@
+- [Orval hook params pattern](orval-hook-params.md) — hooks take params as first arg directly, NOT wrapped in `{ params: ... }`
+- [CPCBusiness auth](cpcbusiness-auth.md) — SHA256+salt token scheme, localStorage key, demo credentials
