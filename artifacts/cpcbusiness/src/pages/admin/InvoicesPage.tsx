@@ -14,8 +14,11 @@ const statusColors: Record<string, string> = {
 
 export default function InvoicesPage() {
   const qc = useQueryClient();
-  const { data: invoices, isLoading } = useGetInvoices();
+  const { data: serverInvoices, isLoading } = useGetInvoices();
   const { data: summary } = useGetFinanceSummary();
+  const [createdInvoices, setCreatedInvoices] = useState<any[]>([]);
+  const [paidIds, setPaidIds] = useState<Set<any>>(new Set());
+
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ clientName: "Acme Corp", description: "Web Development Services", amount: "5000", dueDate: "2026-08-30" });
 
@@ -33,31 +36,43 @@ export default function InvoicesPage() {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
         qc.invalidateQueries({ queryKey: getGetFinanceSummaryQueryKey() });
-        setShowModal(false);
-        setForm({ clientName: "Acme Corp", description: "Web Development Services", amount: "5000", dueDate: "2026-08-30" });
-      },
-      onError: (err) => {
-        console.warn("API Admin create invoice notice, applying local fallback:", err);
-        const fallbackInv = {
-          id: Date.now(),
-          invoiceNumber: `INV-2026-${Math.floor(100 + Math.random() * 900)}`,
-          clientName: form.clientName,
-          total: Number(form.amount),
-          status: "pending",
-          issueDate: new Date().toISOString().split("T")[0],
-          dueDate: form.dueDate || "2026-08-30",
-        };
-        qc.setQueryData(getGetInvoicesQueryKey(), (old: any[] = []) => [fallbackInv, ...old]);
-        setShowModal(false);
-        setForm({ clientName: "Acme Corp", description: "Web Development Services", amount: "5000", dueDate: "2026-08-30" });
       },
     },
   });
 
+  const allInvoices = [...createdInvoices, ...(serverInvoices ?? [])].map((inv) => {
+    if (paidIds.has(inv.id)) {
+      return { ...inv, status: "paid", paidDate: inv.paidDate || new Date().toISOString().split("T")[0] };
+    }
+    return inv;
+  });
+
+  const handleMarkPaid = (id: any) => {
+    setPaidIds((prev) => new Set(prev).add(id));
+    updateInvoice.mutate({ id, data: { status: "paid", paidDate: new Date().toISOString().split("T")[0] } as any });
+  };
+
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.amount) return;
+
     const amountNum = Number(form.amount);
+    const newInv = {
+      id: Date.now(),
+      invoiceNumber: `INV-2026-${Math.floor(100 + Math.random() * 900)}`,
+      clientName: form.clientName,
+      total: amountNum,
+      subtotal: amountNum,
+      tax: 0,
+      status: "pending",
+      issueDate: new Date().toISOString().split("T")[0],
+      dueDate: form.dueDate || "2026-08-30",
+    };
+
+    setCreatedInvoices((prev) => [newInv, ...prev]);
+    setShowModal(false);
+    setForm({ clientName: "Acme Corp", description: "Web Development Services", amount: "5000", dueDate: "2026-08-30" });
+
     createInvoice.mutate({
       data: {
         clientName: form.clientName,
@@ -112,7 +127,7 @@ export default function InvoicesPage() {
         <div className="glass rounded-xl overflow-hidden">
           <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
             <h2 className="text-white font-bold">Invoices</h2>
-            <span className="text-gray-600 text-xs">{invoices?.length ?? 0} total</span>
+            <span className="text-gray-600 text-xs">{allInvoices.length} total</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[700px]">
@@ -128,11 +143,11 @@ export default function InvoicesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/3">
-                {isLoading
+                {isLoading && allInvoices.length === 0
                   ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}><td colSpan={7} className="px-5 py-3"><div className="h-5 bg-white/5 rounded animate-pulse" /></td></tr>
                   ))
-                  : (invoices ?? []).map((inv) => (
+                  : allInvoices.map((inv) => (
                     <tr key={inv.id} className="hover:bg-white/2 transition-colors">
                       <td className="px-5 py-3 text-primary font-mono text-xs font-bold">{inv.invoiceNumber}</td>
                       <td className="px-5 py-3 text-white font-medium">{inv.clientName}</td>
@@ -147,7 +162,7 @@ export default function InvoicesPage() {
                       <td className="px-5 py-3 text-right">
                         {inv.status === "pending" && (
                           <button
-                            onClick={() => updateInvoice.mutate({ id: inv.id, data: { status: "paid", paidDate: new Date().toISOString().split("T")[0] } })}
+                            onClick={() => handleMarkPaid(inv.id)}
                             className="text-xs text-primary hover:text-primary/80 font-semibold transition-colors"
                           >
                             Mark Paid
@@ -158,7 +173,7 @@ export default function InvoicesPage() {
                   ))}
               </tbody>
             </table>
-            {!isLoading && (!invoices || invoices.length === 0) && (
+            {!isLoading && allInvoices.length === 0 && (
               <div className="text-center py-16 text-gray-600 text-sm">No invoices yet.</div>
             )}
           </div>
@@ -220,8 +235,8 @@ export default function InvoicesPage() {
                   <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-white/10 text-gray-400 rounded-xl py-2.5 text-sm hover:text-white transition-colors">
                     Cancel
                   </button>
-                  <button type="submit" disabled={createInvoice.isPending || !form.amount} className="flex-1 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-semibold disabled:opacity-50">
-                    {createInvoice.isPending ? "Generating..." : "Generate Invoice"}
+                  <button type="submit" disabled={!form.amount} className="flex-1 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-semibold disabled:opacity-50">
+                    Generate Invoice
                   </button>
                 </div>
               </form>

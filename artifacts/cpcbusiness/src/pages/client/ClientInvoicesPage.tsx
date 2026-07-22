@@ -14,7 +14,10 @@ const statusColors: Record<string, string> = {
 
 export default function ClientInvoicesPage() {
   const qc = useQueryClient();
-  const { data: invoices, isLoading } = useGetInvoices();
+  const { data: serverInvoices, isLoading } = useGetInvoices();
+  const [createdInvoices, setCreatedInvoices] = useState<any[]>([]);
+  const [paidInvoiceIds, setPaidInvoiceIds] = useState<Set<any>>(new Set());
+
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestForm, setRequestForm] = useState({ description: "", amount: "" });
@@ -24,21 +27,6 @@ export default function ClientInvoicesPage() {
     mutation: {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
-        setSelectedInvoice(null);
-        setPaying(false);
-      },
-      onError: () => {
-        if (selectedInvoice) {
-          qc.setQueryData(getGetInvoicesQueryKey(), (old: any[] = []) =>
-            old.map((inv) =>
-              inv.id === selectedInvoice.id
-                ? { ...inv, status: "paid", paidDate: new Date().toISOString().split("T")[0] }
-                : inv
-            )
-          );
-        }
-        setSelectedInvoice(null);
-        setPaying(false);
       },
     },
   });
@@ -47,52 +35,71 @@ export default function ClientInvoicesPage() {
     mutation: {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
-        setShowRequestModal(false);
-        setRequestForm({ description: "", amount: "" });
-      },
-      onError: () => {
-        const fallbackInv = {
-          id: Date.now(),
-          invoiceNumber: `INV-2026-${Math.floor(100 + Math.random() * 900)}`,
-          clientName: "Demo Client",
-          total: Number(requestForm.amount),
-          status: "pending",
-          issueDate: new Date().toISOString().split("T")[0],
-          dueDate: "2026-08-30",
-        };
-        qc.setQueryData(getGetInvoicesQueryKey(), (old: any[] = []) => [fallbackInv, ...old]);
-        setShowRequestModal(false);
-        setRequestForm({ description: "", amount: "" });
       },
     },
+  });
+
+  // Combine server invoices with newly created invoices and apply local paid status updates
+  const allInvoices = [...createdInvoices, ...(serverInvoices ?? [])].map((inv) => {
+    if (paidInvoiceIds.has(inv.id)) {
+      return { ...inv, status: "paid", paidDate: inv.paidDate || new Date().toISOString().split("T")[0] };
+    }
+    return inv;
   });
 
   const handlePay = () => {
     if (!selectedInvoice) return;
     setPaying(true);
-    setTimeout(() => {
-      updateInvoice.mutate({
-        id: selectedInvoice.id,
-        data: {
-          status: "paid",
-          paidDate: new Date().toISOString().split("T")[0],
-        },
-      });
-    }, 1000);
+    const invId = selectedInvoice.id;
+
+    // Instant local UI update
+    setPaidInvoiceIds((prev) => new Set(prev).add(invId));
+    setPaying(false);
+    setSelectedInvoice(null);
+
+    // Background server update
+    updateInvoice.mutate({
+      id: invId,
+      data: {
+        status: "paid",
+        paidDate: new Date().toISOString().split("T")[0],
+      } as any,
+    });
   };
 
   const handleRequestSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!requestForm.amount) return;
+
+    const amountNum = Number(requestForm.amount);
+    const newInv = {
+      id: Date.now(),
+      invoiceNumber: `INV-2026-${Math.floor(100 + Math.random() * 900)}`,
+      clientName: "Demo Client",
+      projectName: requestForm.description || "Digital Agency Services",
+      total: amountNum,
+      subtotal: amountNum,
+      tax: 0,
+      status: "pending",
+      issueDate: new Date().toISOString().split("T")[0],
+      dueDate: "2026-08-30",
+    };
+
+    // Instant UI update
+    setCreatedInvoices((prev) => [newInv, ...prev]);
+    setShowRequestModal(false);
+    setRequestForm({ description: "", amount: "" });
+
+    // Background server sync
     createInvoice.mutate({
       data: {
         clientId: 1,
         clientName: "Demo Client",
-        total: Number(requestForm.amount),
-        subtotal: Number(requestForm.amount),
+        total: amountNum,
+        subtotal: amountNum,
         tax: 0,
         status: "pending",
-        items: [{ description: requestForm.description || "Digital Service Payment", quantity: 1, unitPrice: Number(requestForm.amount), total: Number(requestForm.amount) }],
+        items: [{ description: requestForm.description || "Digital Service Payment", quantity: 1, unitPrice: amountNum, total: amountNum }],
       } as any,
     });
   };
@@ -126,11 +133,11 @@ export default function ClientInvoicesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/3">
-                {isLoading
+                {isLoading && allInvoices.length === 0
                   ? Array.from({ length: 4 }).map((_, i) => (
                     <tr key={i}><td colSpan={6} className="px-5 py-3"><div className="h-5 bg-white/5 rounded animate-pulse" /></td></tr>
                   ))
-                  : (invoices ?? []).map((inv) => (
+                  : allInvoices.map((inv) => (
                     <tr key={inv.id} className="hover:bg-white/2 transition-colors">
                       <td className="px-5 py-3">
                         <p className="text-primary font-mono text-xs font-bold">{inv.invoiceNumber}</p>
@@ -162,7 +169,7 @@ export default function ClientInvoicesPage() {
                   ))}
               </tbody>
             </table>
-            {!isLoading && (!invoices || invoices.length === 0) && (
+            {!isLoading && allInvoices.length === 0 && (
               <div className="text-center py-16 text-gray-600 text-sm">
                 <Receipt size={40} className="mx-auto mb-3 opacity-20" />
                 <p>No invoices found.</p>
@@ -264,8 +271,8 @@ export default function ClientInvoicesPage() {
                   <button type="button" onClick={() => setShowRequestModal(false)} className="flex-1 border border-white/10 text-gray-400 rounded-xl py-2.5 text-sm hover:text-white transition-colors">
                     Cancel
                   </button>
-                  <button type="submit" disabled={createInvoice.isPending || !requestForm.amount} className="flex-1 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-semibold disabled:opacity-50">
-                    {createInvoice.isPending ? "Generating..." : "Generate Invoice"}
+                  <button type="submit" disabled={!requestForm.amount} className="flex-1 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-semibold disabled:opacity-50">
+                    Generate Invoice
                   </button>
                 </div>
               </form>
