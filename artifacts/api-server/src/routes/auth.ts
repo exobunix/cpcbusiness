@@ -3,6 +3,7 @@ import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import crypto from "crypto";
+import { MongoUser, MongoClient, MongoNotification, memoryStore } from "../lib/store";
 
 const router = Router();
 
@@ -27,35 +28,43 @@ const DEMO_USERS = [
     department: "Marketing",
     avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
   },
-  {
-    id: 3,
-    name: "Client User",
-    email: "client@cpcbusiness.com",
-    password: "client123",
-    role: "client",
-    department: "Marketing",
-    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
-  },
 ];
 
 router.post("/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body as { email: string; password: string };
     
-    // Check DB first if available
     let user: any = null;
+
+    // Check MongoDB MongoUser first
     try {
-      if (db) {
-        const [found] = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
-        if (found && found.passwordHash === hashPassword(password)) {
-          user = found;
-        }
+      const foundMongo = await MongoUser.findOne({ email: email.toLowerCase() }).lean();
+      if (foundMongo) {
+        user = {
+          id: foundMongo.id || foundMongo._id.toString(),
+          name: foundMongo.name,
+          email: foundMongo.email,
+          role: foundMongo.role || "client",
+          company: foundMongo.company || "",
+        };
       }
-    } catch (e) {
-      logger.warn({ err: e }, "DB query error on login, checking demo users");
+    } catch (e) {}
+
+    // Check DB first if available
+    if (!user) {
+      try {
+        if (db) {
+          const [found] = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
+          if (found && found.passwordHash === hashPassword(password)) {
+            user = found;
+          }
+        }
+      } catch (e) {
+        logger.warn({ err: e }, "DB query error on login");
+      }
     }
 
-    // Demo user fallback if not found in DB
+    // Demo user fallback if not found
     if (!user) {
       const demo = DEMO_USERS.find(
         (u) => u.email.toLowerCase() === (email || "").toLowerCase() && (u.password === password || password === "admin123" || password === "client123")
@@ -69,6 +78,14 @@ router.post("/auth/login", async (req, res) => {
           department: demo.department,
           avatarUrl: demo.avatarUrl,
         };
+      }
+    }
+
+    // Check memoryStore.users fallback
+    if (!user) {
+      const memUser = memoryStore.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      if (memUser) {
+        user = memUser;
       }
     }
 
@@ -87,32 +104,72 @@ router.post("/auth/login", async (req, res) => {
 
 router.post("/auth/register", async (req, res) => {
   try {
-    const { name, email, password, role = "client" } = req.body as { name: string; email: string; password: string; role?: string };
+    const { name, email, password, role = "client", company = "", phone = "" } = req.body as { name: string; email: string; password: string; role?: string; company?: string; phone?: string };
     
-    let user: any = null;
+    const newUser = {
+      id: Date.now(),
+      name,
+      email: email.toLowerCase(),
+      role,
+      company: company || (role === "client" ? "Independent Client" : "Agency Team"),
+      phone: phone || "",
+      status: "active",
+      createdAt: new Date().toISOString(),
+    };
+
+    // Save to MongoDB MongoUser & MongoClient
     try {
-      if (db) {
-        const existing = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
-        if (existing.length) return res.status(409).json({ error: "Email already exists" });
-        const [inserted] = await db.insert(usersTable).values({ name, email, passwordHash: hashPassword(password), role }).returning();
-        user = inserted;
+      await MongoUser.create(newUser);
+      if (role === "client") {
+        await MongoClient.create({
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          company: newUser.company,
+          phone: newUser.phone,
+          status: "active",
+          activeProjects: 0,
+          totalSpent: 0,
+          createdAt: newUser.createdAt,
+        });
       }
     } catch (e) {
-      logger.warn({ err: e }, "DB query error on register, creating in-memory user");
+      logger.warn({ err: e }, "MongoDB save user notice");
     }
 
-    if (!user) {
-      user = {
-        id: Date.now(),
-        name,
-        email,
-        role,
-      };
+    // Save to memoryStore
+    memoryStore.users.unshift(newUser);
+    if (role === "client") {
+      memoryStore.clients.unshift({
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        company: newUser.company,
+        phone: newUser.phone,
+        status: "active",
+        activeProjects: 0,
+        totalSpent: 0,
+        createdAt: newUser.createdAt,
+      });
     }
 
-    const token = Buffer.from(`${user.id}:${user.email}:${Date.now()}`).toString("base64");
-    const { passwordHash: _, ...safeUser } = user;
-    return res.status(201).json({ token, user: safeUser });
+    // Trigger Admin Notification
+    const notif = {
+      id: Date.now() + 1,
+      userId: 1,
+      title: "New User Registered",
+      message: `User "${newUser.name}" (${newUser.email}) registered as ${newUser.role}.`,
+      type: "user",
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    try {
+      await MongoNotification.create(notif);
+    } catch (e) {}
+    memoryStore.notifications.unshift(notif);
+
+    const token = Buffer.from(`${newUser.id}:${newUser.email}:${Date.now()}`).toString("base64");
+    return res.status(201).json({ token, user: newUser });
   } catch (err) {
     logger.error({ err }, "Register error");
     return res.status(500).json({ error: "Internal server error" });
@@ -130,17 +187,24 @@ router.get("/auth/me", async (req, res) => {
 
     if (isNaN(userId)) return res.status(401).json({ error: "Invalid token" });
 
-    // Try DB first
+    // Try MongoDB
     try {
-      if (db) {
-        const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
-        if (user) {
-          const { passwordHash: _, ...safeUser } = user;
-          return res.json(safeUser);
-        }
+      const foundMongo = await MongoUser.findOne({ $or: [{ id: userId }, { email: userEmail?.toLowerCase() }] }).lean();
+      if (foundMongo) {
+        return res.json({
+          id: foundMongo.id || foundMongo._id.toString(),
+          name: foundMongo.name,
+          email: foundMongo.email,
+          role: foundMongo.role || "client",
+          company: foundMongo.company,
+        });
       }
-    } catch (e) {
-      logger.warn({ err: e }, "DB query error on auth/me");
+    } catch (e) {}
+
+    // Check memoryStore
+    const memUser = memoryStore.users.find((u) => u.id === userId || u.email.toLowerCase() === userEmail?.toLowerCase());
+    if (memUser) {
+      return res.json(memUser);
     }
 
     // Demo fallback

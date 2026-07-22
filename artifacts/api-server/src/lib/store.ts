@@ -2,6 +2,31 @@ import mongoose, { Schema } from "mongoose";
 import { logger } from "./logger";
 
 // Mongoose Schemas for MongoDB Atlas
+const UserSchema = new Schema({
+  id: { type: Number, required: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  role: { type: String, default: "client" },
+  company: String,
+  phone: String,
+  status: { type: String, default: "active" },
+  avatarUrl: String,
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
+
+const ClientSchema = new Schema({
+  id: { type: Number, required: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  company: String,
+  phone: String,
+  status: { type: String, default: "active" },
+  activeProjects: { type: Number, default: 0 },
+  totalSpent: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const ProjectSchema = new Schema({
   name: { type: String, required: true },
   description: String,
@@ -70,6 +95,8 @@ const NotificationSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+export const MongoUser = mongoose.models.User || mongoose.model("User", UserSchema);
+export const MongoClient = mongoose.models.Client || mongoose.model("Client", ClientSchema);
 export const MongoProject = mongoose.models.Project || mongoose.model("Project", ProjectSchema);
 export const MongoInvoice = mongoose.models.Invoice || mongoose.model("Invoice", InvoiceSchema);
 export const MongoTicket = mongoose.models.Ticket || mongoose.model("Ticket", TicketSchema);
@@ -78,6 +105,43 @@ export const MongoNotification = mongoose.models.Notification || mongoose.model(
 
 // In-Memory Fallback Seed Data
 export const memoryStore = {
+  users: [
+    {
+      id: 1,
+      name: "Admin User",
+      email: "admin@cpcbusiness.com",
+      role: "admin",
+      company: "CPCBusiness",
+      phone: "+1 (555) 000-1111",
+      status: "active",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 2,
+      name: "Demo Client",
+      email: "client@example.com",
+      role: "client",
+      company: "Acme Corp",
+      phone: "+1 (555) 234-5678",
+      status: "active",
+      createdAt: new Date().toISOString(),
+    },
+  ],
+
+  clients: [
+    {
+      id: 1,
+      name: "Demo Client",
+      email: "client@example.com",
+      company: "Acme Corp",
+      phone: "+1 (555) 234-5678",
+      status: "active",
+      activeProjects: 2,
+      totalSpent: 16250,
+      createdAt: new Date().toISOString(),
+    },
+  ],
+
   projects: [
     {
       id: 1,

@@ -10,6 +10,7 @@ import { clearToken } from "@/lib/auth";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
+  { icon: Users, label: "Registered Users", href: "/admin/users" },
   { icon: TrendingUp, label: "Leads / CRM", href: "/admin/leads" },
   { icon: UserCheck, label: "Clients", href: "/admin/clients" },
   { icon: Briefcase, label: "Projects", href: "/admin/projects" },

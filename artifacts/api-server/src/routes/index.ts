@@ -15,6 +15,7 @@ import messagesRouter from "./messages";
 import notificationsRouter from "./notifications";
 import aiRouter from "./ai";
 import imagekitRouter from "./imagekit";
+import usersRouter from "./users";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(messagesRouter);
 router.use(notificationsRouter);
 router.use(aiRouter);
 router.use(imagekitRouter);
+router.use(usersRouter);
 
 export default router;
