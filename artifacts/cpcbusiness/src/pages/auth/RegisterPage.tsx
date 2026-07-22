@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useRegister } from "@workspace/api-client-react";
-import { setToken } from "@/lib/auth";
+import { setToken, setUser } from "@/lib/auth";
 
 export default function RegisterPage() {
   const [, setLocation] = useLocation();
@@ -16,11 +16,26 @@ export default function RegisterPage() {
     mutation: {
       onSuccess: (data) => {
         setToken(data.token);
-        setLocation("/admin");
+        if (data.user) {
+          setUser({
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role ?? "client",
+          });
+        }
+        setLocation(data.user?.role === "admin" ? "/admin" : "/client");
       },
-      onError: () => {
-        setToken("demo-token");
-        setLocation("/admin");
+      onError: (_err, variables) => {
+        const mockToken = btoa(`registered:${variables.data.email}:${Date.now()}`);
+        setToken(mockToken);
+        setUser({
+          id: Date.now(),
+          name: variables.data.name || "New User",
+          email: variables.data.email,
+          role: "client",
+        });
+        setLocation("/client");
       },
     },
   });
