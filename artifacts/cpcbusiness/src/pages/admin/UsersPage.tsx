@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Users, Search, UserCheck, Shield, Mail, Calendar, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { getUser, getRegisteredUsersLocally, safeArray } from "@/lib/auth";
+import { getUser, getRegisteredUsersLocally, safeArray, authHeaders } from "@/lib/auth";
 
 interface RegisteredUser {
   id: number | string;
@@ -64,7 +64,9 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch("/api/users");
+      const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+      const targetUrl = !isLocal ? "https://cpcbusiness.onrender.com/api/users" : "/api/users";
+      const res = await fetch(targetUrl, { headers: authHeaders() });
       if (res.ok) {
         const data = await res.json();
         setUsers(combineUsers(data));
@@ -85,7 +87,9 @@ export default function UsersPage() {
   const handleDelete = async (id: number | string) => {
     setUsers((prev) => prev.filter((u) => u.id !== id));
     try {
-      await fetch(`/api/users/${id}`, { method: "DELETE" });
+      const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+      const targetUrl = !isLocal ? `https://cpcbusiness.onrender.com/api/users/${id}` : `/api/users/${id}`;
+      await fetch(targetUrl, { method: "DELETE", headers: authHeaders() });
     } catch (e) {}
   };
 
