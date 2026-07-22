@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Users, Search, UserCheck, Shield, Mail, Calendar, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { getUser } from "@/lib/auth";
+import { getUser, getRegisteredUsersLocally } from "@/lib/auth";
 
 interface RegisteredUser {
   id: number | string;
@@ -20,33 +20,59 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
 
+  const combineUsers = (apiUsers: RegisteredUser[] = []) => {
+    const defaultSeed: RegisteredUser[] = [
+      { id: 1, name: "Admin User", email: "admin@cpcbusiness.com", role: "admin", company: "CPCBusiness", status: "active", createdAt: new Date().toISOString() },
+      { id: 2, name: "Demo Client", email: "client@example.com", role: "client", company: "Acme Corp", status: "active", createdAt: new Date().toISOString() },
+    ];
+
+    const localRegistered = getRegisteredUsersLocally();
+    const currentUser = getUser();
+
+    const currentAsUser = currentUser
+      ? [
+          {
+            id: currentUser.id || Date.now(),
+            name: currentUser.name || "Registered User",
+            email: currentUser.email,
+            role: currentUser.role || "client",
+            company: currentUser.company || "Registered Client",
+            status: "active",
+            createdAt: currentUser.createdAt || new Date().toISOString(),
+          },
+        ]
+      : [];
+
+    const rawList = [...apiUsers, ...localRegistered, ...currentAsUser, ...defaultSeed];
+
+    // Deduplicate by email
+    const seen = new Set<string>();
+    const uniqueList: RegisteredUser[] = [];
+
+    for (const u of rawList) {
+      if (!u || !u.email) continue;
+      const key = u.email.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueList.push(u);
+      }
+    }
+
+    return uniqueList;
+  };
+
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
       const res = await fetch("/api/users");
       if (res.ok) {
         const data = await res.json();
-        setUsers(data);
+        setUsers(combineUsers(data));
       } else {
-        // Local fallback
-        const current = getUser();
-        setUsers([
-          { id: 1, name: "Admin User", email: "admin@cpcbusiness.com", role: "admin", company: "CPCBusiness", status: "active", createdAt: new Date().toISOString() },
-          { id: 2, name: "Demo Client", email: "client@example.com", role: "client", company: "Acme Corp", status: "active", createdAt: new Date().toISOString() },
-          ...(current && current.email !== "admin@cpcbusiness.com" && current.email !== "client@example.com"
-            ? [{ id: current.id || Date.now(), name: current.name, email: current.email, role: current.role || "client", company: "Registered User", status: "active", createdAt: new Date().toISOString() }]
-            : []),
-        ]);
+        setUsers(combineUsers([]));
       }
     } catch (e) {
-      const current = getUser();
-      setUsers([
-        { id: 1, name: "Admin User", email: "admin@cpcbusiness.com", role: "admin", company: "CPCBusiness", status: "active", createdAt: new Date().toISOString() },
-        { id: 2, name: "Demo Client", email: "client@example.com", role: "client", company: "Acme Corp", status: "active", createdAt: new Date().toISOString() },
-        ...(current && current.email !== "admin@cpcbusiness.com" && current.email !== "client@example.com"
-          ? [{ id: current.id || Date.now(), name: current.name, email: current.email, role: current.role || "client", company: "Registered User", status: "active", createdAt: new Date().toISOString() }]
-          : []),
-      ]);
+      setUsers(combineUsers([]));
     } finally {
       setIsLoading(false);
     }
@@ -151,7 +177,7 @@ export default function UsersPage() {
                             {u.role}
                           </span>
                         </td>
-                        <td className="px-5 py-3 text-gray-400 text-xs">{u.company || "N/A"}</td>
+                        <td className="px-5 py-3 text-gray-400 text-xs">{u.company || "Registered Client"}</td>
                         <td className="px-5 py-3">
                           <span className="text-xs font-semibold px-2 py-0.5 rounded-full border text-emerald-400 bg-emerald-400/10 border-emerald-400/20">
                             {u.status || "active"}

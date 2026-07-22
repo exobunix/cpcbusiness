@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useRegister } from "@workspace/api-client-react";
-import { setToken, setUser } from "@/lib/auth";
+import { setToken, setUser, registerUserLocally } from "@/lib/auth";
 
 export default function RegisterPage() {
   const [, setLocation] = useLocation();
@@ -16,29 +16,52 @@ export default function RegisterPage() {
     mutation: {
       onSuccess: (data) => {
         setToken(data.token);
-        if (data.user) {
-          setUser({
-            id: data.user.id,
-            name: data.user.name,
-            email: data.user.email,
-            role: data.user.role ?? "client",
-          });
-        }
-        setLocation(data.user?.role === "admin" ? "/admin" : "/client");
+        const newUser = {
+          id: data.user?.id || Date.now(),
+          name: data.user?.name || name,
+          email: data.user?.email || email,
+          role: data.user?.role ?? "client",
+          company: "Registered Client",
+          status: "active",
+          createdAt: new Date().toISOString(),
+        };
+        setUser(newUser);
+        registerUserLocally(newUser);
+        setLocation(newUser.role === "admin" ? "/admin" : "/client");
       },
       onError: (_err, variables) => {
         const mockToken = btoa(`registered:${variables.data.email}:${Date.now()}`);
         setToken(mockToken);
-        setUser({
+        const newUser = {
           id: Date.now(),
-          name: variables.data.name || "New User",
-          email: variables.data.email,
+          name: variables.data.name || name || "Registered User",
+          email: variables.data.email || email,
           role: "client",
-        });
+          company: "Registered Client",
+          status: "active",
+          createdAt: new Date().toISOString(),
+        };
+        setUser(newUser);
+        registerUserLocally(newUser);
         setLocation("/client");
       },
     },
   });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newUser = {
+      id: Date.now(),
+      name: name.trim() || "Registered User",
+      email: email.trim(),
+      role: "client",
+      company: "Registered Client",
+      status: "active",
+      createdAt: new Date().toISOString(),
+    };
+    registerUserLocally(newUser);
+    register.mutate({ data: { name, email, password } });
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
@@ -56,7 +79,7 @@ export default function RegisterPage() {
         <h1 className="text-3xl font-black text-white mb-2">Create Account</h1>
         <p className="text-gray-500 mb-8">Join the CPCBusiness platform today.</p>
 
-        <form onSubmit={(e) => { e.preventDefault(); register.mutate({ data: { name, email, password } }); }} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="text-xs font-semibold text-gray-400 mb-2 block uppercase tracking-wider">Full Name</label>
             <input value={name} onChange={(e) => setName(e.target.value)} required className="w-full bg-white/3 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm focus:outline-none focus:border-primary/50 transition-all" placeholder="John Doe" />
