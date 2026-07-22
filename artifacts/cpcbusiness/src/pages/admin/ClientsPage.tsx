@@ -5,6 +5,8 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import { useGetClients, useCreateClient, useDeleteClient, getGetClientsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { safeArray } from "@/lib/auth";
+
 const statusColors: Record<string, string> = {
   active: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
   inactive: "text-gray-400 bg-gray-400/10 border-gray-400/20",
@@ -52,7 +54,7 @@ export default function ClientsPage() {
     },
   });
 
-  const clients = [...localClients, ...(serverClients ?? [])];
+  const clients = [...localClients, ...safeArray(serverClients)];
 
   const handleAddSubmit = () => {
     if (!form.name || !form.email) return;

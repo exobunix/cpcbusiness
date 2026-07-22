@@ -4,6 +4,7 @@ import { Plus, X, Globe, ToggleLeft, ToggleRight } from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useGetServices, useCreateService, useUpdateService, useDeleteService, getGetServicesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { safeArray } from "@/lib/auth";
 
 export default function ServicesCMSPage() {
   const qc = useQueryClient();
@@ -34,7 +35,7 @@ export default function ServicesCMSPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-36 glass rounded-xl animate-pulse" />)
-            : (services ?? []).map((svc: any, i) => (
+            : safeArray(services).map((svc: any, i) => (
               <motion.div
                 key={svc.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -60,9 +61,9 @@ export default function ServicesCMSPage() {
                   </div>
                 </div>
                 <p className="text-gray-500 text-sm line-clamp-2 mb-3">{svc.shortDescription || svc.description}</p>
-                {svc.technologies && svc.technologies.length > 0 && (
+                {svc.technologies && Array.isArray(svc.technologies) && svc.technologies.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
-                    {(svc.technologies as string[]).slice(0, 4).map((t: string) => (
+                    {svc.technologies.slice(0, 4).map((t: string) => (
                       <span key={t} className="text-xs px-2 py-0.5 rounded bg-white/5 text-gray-500">{t}</span>
                     ))}
                   </div>
@@ -71,7 +72,7 @@ export default function ServicesCMSPage() {
             ))}
         </div>
 
-        {!isLoading && (!services || services.length === 0) && (
+        {!isLoading && (!Array.isArray(services) || services.length === 0) && (
           <div className="text-center py-20 glass rounded-xl text-gray-600">
             <Globe size={40} className="mx-auto mb-3 opacity-20" />
             <p>No services defined yet.</p>

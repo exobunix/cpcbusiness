@@ -4,6 +4,7 @@ import { Plus, X, Image, Star } from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useGetPortfolioItems, useCreatePortfolioItem, useUpdatePortfolioItem, useDeletePortfolioItem, getGetPortfolioItemsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { safeArray } from "@/lib/auth";
 
 export default function PortfolioCMSPage() {
   const qc = useQueryClient();
@@ -20,7 +21,7 @@ export default function PortfolioCMSPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black text-white">Portfolio CMS</h1>
-            <p className="text-gray-500 text-sm mt-1">{items?.length ?? 0} projects</p>
+            <p className="text-gray-500 text-sm mt-1">{safeArray(items).length} projects</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
@@ -34,7 +35,7 @@ export default function PortfolioCMSPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-40 glass rounded-xl animate-pulse" />)
-            : (items ?? []).map((item: any, i) => (
+            : safeArray(items).map((item: any, i) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -62,11 +63,13 @@ export default function PortfolioCMSPage() {
                 </div>
                 <p className="text-gray-500 text-xs mb-3 line-clamp-2">{item.shortDescription || item.description}</p>
                 {item.results && <p className="text-primary text-xs font-semibold mb-2">{item.results}</p>}
-                <div className="flex flex-wrap gap-1">
-                  {(item.technologies as string[]).slice(0, 3).map((t: string) => (
-                    <span key={t} className="text-xs px-2 py-0.5 rounded bg-white/5 text-gray-600">{t}</span>
-                  ))}
-                </div>
+                {item.technologies && Array.isArray(item.technologies) && (
+                  <div className="flex flex-wrap gap-1">
+                    {item.technologies.slice(0, 3).map((t: string) => (
+                      <span key={t} className="text-xs px-2 py-0.5 rounded bg-white/5 text-gray-600">{t}</span>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             ))}
         </div>

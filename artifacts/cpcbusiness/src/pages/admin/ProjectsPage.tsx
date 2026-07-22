@@ -4,6 +4,7 @@ import { Plus, X, Briefcase, Calendar } from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useGetProjects, useCreateProject, useUpdateProject, useDeleteProject, useGetClients, getGetProjectsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { safeArray } from "@/lib/auth";
 
 const statusColors: Record<string, string> = {
   active: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
@@ -45,7 +46,7 @@ export default function ProjectsPage() {
           budget: form.budget ? Number(form.budget) : 10000,
           progress: 0,
         };
-        qc.setQueryData(getGetProjectsQueryKey(), (old: any[] = []) => [fallback, ...old]);
+        qc.setQueryData(getGetProjectsQueryKey(), (old: any[] = []) => [fallback, ...safeArray(old)]);
         setShowModal(false);
       },
     },
@@ -58,7 +59,7 @@ export default function ProjectsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black text-white">Projects</h1>
-            <p className="text-gray-500 text-sm mt-1">{projects?.length ?? 0} projects</p>
+            <p className="text-gray-500 text-sm mt-1">{safeArray(projects).length} projects</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
@@ -80,7 +81,7 @@ export default function ProjectsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {isLoading
             ? Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-48 glass rounded-xl animate-pulse" />)
-            : (projects ?? []).map((p, i) => (
+            : safeArray(projects).map((p: any, i: number) => (
               <motion.div
                 key={p.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -100,7 +101,7 @@ export default function ProjectsPage() {
 
                 <div className="flex items-center gap-2 mb-4">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${statusColors[p.status] ?? statusColors.active}`}>
-                    {p.status.replace("_", " ")}
+                    {(p.status || "active").replace("_", " ")}
                   </span>
                   <span className={`text-xs font-medium ${priorityColors[p.priority]}`}>
                     {p.priority}
@@ -110,12 +111,12 @@ export default function ProjectsPage() {
                 <div className="space-y-1.5 mb-4">
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Progress</span>
-                    <span className="text-white font-medium">{p.progress}%</span>
+                    <span className="text-white font-medium">{p.progress || 0}%</span>
                   </div>
                   <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: `${p.progress}%` }}
+                      animate={{ width: `${p.progress || 0}%` }}
                       transition={{ duration: 0.8 }}
                       className="h-full bg-primary rounded-full"
                     />
@@ -130,7 +131,7 @@ export default function ProjectsPage() {
             ))}
         </div>
 
-        {!isLoading && (!projects || projects.length === 0) && (
+        {!isLoading && safeArray(projects).length === 0 && (
           <div className="text-center py-20 glass rounded-xl text-gray-600">
             <Briefcase size={40} className="mx-auto mb-3 opacity-20" />
             <p>No projects yet.</p>
@@ -155,7 +156,7 @@ export default function ProjectsPage() {
                   <label className="text-xs text-gray-500 mb-1.5 block">Client</label>
                   <select value={form.clientId} onChange={(e) => setForm({ ...form, clientId: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50">
                     <option value="">No client</option>
-                    {(clients ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {safeArray(clients).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">

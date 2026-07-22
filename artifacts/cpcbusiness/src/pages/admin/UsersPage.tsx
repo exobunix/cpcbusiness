@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Users, Search, UserCheck, Shield, Mail, Calendar, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { getUser, getRegisteredUsersLocally } from "@/lib/auth";
+import { getUser, getRegisteredUsersLocally, safeArray } from "@/lib/auth";
 
 interface RegisteredUser {
   id: number | string;
@@ -20,7 +20,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
 
-  const combineUsers = (apiUsers: RegisteredUser[] = []) => {
+  const combineUsers = (apiUsers: any = []) => {
     const defaultSeed: RegisteredUser[] = [
       { id: 1, name: "Admin User", email: "admin@cpcbusiness.com", role: "admin", company: "CPCBusiness", status: "active", createdAt: new Date().toISOString() },
       { id: 2, name: "Demo Client", email: "client@example.com", role: "client", company: "Acme Corp", status: "active", createdAt: new Date().toISOString() },
@@ -43,7 +43,7 @@ export default function UsersPage() {
         ]
       : [];
 
-    const rawList = [...apiUsers, ...localRegistered, ...currentAsUser, ...defaultSeed];
+    const rawList = [...safeArray(apiUsers), ...safeArray(localRegistered), ...currentAsUser, ...defaultSeed];
 
     // Deduplicate by email
     const seen = new Set<string>();

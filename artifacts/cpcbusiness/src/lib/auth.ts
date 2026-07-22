@@ -8,6 +8,8 @@ export const isAuthenticated = () => !!getToken();
 
 export const getAuthToken = getToken;
 
+export const safeArray = <T = any>(data: any): T[] => (Array.isArray(data) ? data : []);
+
 export interface StoredUser {
   id: number | string;
   name: string;
