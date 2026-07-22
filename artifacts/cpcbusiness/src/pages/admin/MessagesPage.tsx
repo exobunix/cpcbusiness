@@ -1,15 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Send, MessageSquare } from "lucide-react";
+import { Send, MessageSquare, Zap } from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
-import { useGetMessages, useSendMessage, getGetMessagesQueryKey } from "@workspace/api-client-react";
+import { useGetMessages, getGetMessagesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getUser } from "@/lib/auth";
+import { getSocket } from "@/lib/socket";
 
 export default function MessagesPage() {
   const qc = useQueryClient();
   const currentUser = getUser();
   const [message, setMessage] = useState("");
+  const [liveMessages, setLiveMessages] = useState<any[]>([]);
+  const [typingUser, setTypingUser] = useState<string | null>(null);
   const [activeClient, setActiveClient] = useState<{ id: number; name: string; email: string }>({
     id: 2,
     name: "Demo Client",
@@ -17,27 +20,53 @@ export default function MessagesPage() {
   });
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Poll for messages every 3 seconds for real-time chat experience
-  const { data: messages } = useGetMessages(undefined, {
-    query: { refetchInterval: 3000 } as any,
-  });
+  // Fetch initial messages
+  const { data: initialMessages } = useGetMessages();
 
-  const sendMessage = useSendMessage({
-    mutation: {
-      onSuccess: () => {
-        qc.invalidateQueries({ queryKey: getGetMessagesQueryKey() });
-        setMessage("");
-      },
-    },
-  });
+  // Sync initial messages to live state
+  useEffect(() => {
+    if (initialMessages) {
+      setLiveMessages(initialMessages);
+    }
+  }, [initialMessages]);
+
+  // Connect Socket.IO
+  useEffect(() => {
+    const socket = getSocket();
+    socket.emit("join_room", "admin_portal");
+
+    const handleNewMessage = (newMsg: any) => {
+      setLiveMessages((prev) => {
+        if (prev.some((m) => String(m.id || m._id) === String(newMsg.id || newMsg._id))) {
+          return prev;
+        }
+        return [...prev, newMsg];
+      });
+      qc.invalidateQueries({ queryKey: getGetMessagesQueryKey() });
+    };
+
+    const handleUserTyping = (data: { userName: string; isTyping: boolean; role: string }) => {
+      if (data.role === "client") {
+        setTypingUser(data.isTyping ? data.userName || "Client" : null);
+      }
+    };
+
+    socket.on("new_message", handleNewMessage);
+    socket.on("user_typing", handleUserTyping);
+
+    return () => {
+      socket.off("new_message", handleNewMessage);
+      socket.off("user_typing", handleUserTyping);
+    };
+  }, [qc]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [liveMessages, typingUser]);
 
   // Extract unique client conversations from message history
   const conversationsMap = new Map<string, { id: number; name: string; lastMsg: string; time: string }>();
-  (messages || []).forEach((msg: any) => {
+  (liveMessages || []).forEach((msg: any) => {
     if (msg.senderRole === "client" || msg.senderId !== 1) {
       const clientId = msg.senderId || 2;
       const clientName = msg.senderName || "Client";
@@ -54,18 +83,28 @@ export default function MessagesPage() {
     conversationsMap.set("2", { id: 2, name: "Demo Client", lastMsg: "Hi team!", time: "12:00 PM" });
   }
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value);
+    const socket = getSocket();
+    socket.emit("typing", { userName: currentUser?.name || "Admin", isTyping: e.target.value.length > 0, role: "admin" });
+  };
+
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
-    sendMessage.mutate({
-      data: {
-        content: message.trim(),
-        senderName: currentUser?.name || "Admin User",
-        senderRole: "admin",
-        senderId: 1,
-        recipientId: activeClient.id,
-      } as any,
-    });
+
+    const socket = getSocket();
+    const payload = {
+      content: message.trim(),
+      senderName: currentUser?.name || "Admin User",
+      senderRole: "admin",
+      senderId: 1,
+      recipientId: activeClient.id,
+    };
+
+    socket.emit("send_message", payload);
+    socket.emit("typing", { userName: currentUser?.name || "Admin", isTyping: false, role: "admin" });
+    setMessage("");
   };
 
   return (
@@ -73,8 +112,10 @@ export default function MessagesPage() {
       <div className="h-[calc(100vh-8rem)] flex flex-col">
         <div className="flex items-center justify-between mb-5 shrink-0">
           <div>
-            <h1 className="text-2xl font-black text-white">Client Conversations</h1>
-            <p className="text-xs text-gray-500">Real-time messaging center for agency clients</p>
+            <h1 className="text-2xl font-black text-white flex items-center gap-2">
+              Client Conversations <span className="text-xs bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><Zap size={12} /> Socket.IO Real-time</span>
+            </h1>
+            <p className="text-xs text-gray-500">Live multi-client messaging center with instant Socket.IO push</p>
           </div>
         </div>
 
@@ -125,12 +166,12 @@ export default function MessagesPage() {
 
             {/* Messages Stream */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
-              {messages && messages.length > 0 ? (
-                messages.map((msg: any) => {
+              {liveMessages && liveMessages.length > 0 ? (
+                liveMessages.map((msg: any) => {
                   const isAdmin = msg.senderRole === "admin" || msg.senderId === 1;
                   return (
                     <motion.div
-                      key={msg.id || msg._id}
+                      key={msg.id || msg._id || Math.random()}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className={`flex gap-3 ${isAdmin ? "flex-row-reverse" : ""}`}
@@ -156,6 +197,12 @@ export default function MessagesPage() {
                   <p>No messages yet. Send a message to start conversing.</p>
                 </div>
               )}
+
+              {typingUser && (
+                <div className="flex gap-2 items-center text-xs text-primary italic">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" /> {typingUser} is typing...
+                </div>
+              )}
               <div ref={bottomRef} />
             </div>
 
@@ -164,13 +211,13 @@ export default function MessagesPage() {
               <form onSubmit={handleSend} className="flex gap-3">
                 <input
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={handleInputChange}
                   placeholder={`Reply to ${activeClient.name}...`}
                   className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50 transition-colors"
                 />
                 <motion.button
                   type="submit"
-                  disabled={!message.trim() || sendMessage.isPending}
+                  disabled={!message.trim()}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50 hover:bg-primary/90 transition-colors"
