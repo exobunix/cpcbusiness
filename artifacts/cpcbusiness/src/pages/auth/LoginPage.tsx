@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Zap, ArrowRight } from "lucide-react";
 import { useLogin } from "@workspace/api-client-react";
-import { setToken } from "@/lib/auth";
+import { setToken, setUser } from "@/lib/auth";
 
 export default function LoginPage() {
   const [, setLocation] = useLocation();
@@ -16,11 +16,20 @@ export default function LoginPage() {
     mutation: {
       onSuccess: (data) => {
         setToken(data.token);
-        setLocation("/admin");
+        if (data.user) {
+          setUser({
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role ?? "client",
+          });
+          setLocation(data.user.role === "admin" ? "/admin" : "/client");
+        } else {
+          setLocation("/admin");
+        }
       },
       onError: () => {
-        setToken("demo-token");
-        setLocation("/admin");
+        setError("Invalid email or password. Please try again.");
       },
     },
   });
@@ -29,6 +38,13 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     login.mutate({ data: { email, password } });
+  };
+
+  const fillAndSubmit = (e: string, p: string) => {
+    setEmail(e);
+    setPassword(p);
+    setError("");
+    login.mutate({ data: { email: e, password: p } });
   };
 
   return (
@@ -164,14 +180,16 @@ export default function LoginPage() {
             <p className="text-center text-xs text-gray-700 mb-4">Quick access demo</p>
             <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => { setEmail("admin@cpcbusiness.com"); setPassword("admin123"); }}
-                className="text-xs border border-white/10 rounded-lg py-2 text-gray-500 hover:text-white hover:border-primary/30 transition-colors"
+                onClick={() => fillAndSubmit("admin@cpcbusiness.com", "admin123")}
+                disabled={login.isPending}
+                className="text-xs border border-white/10 rounded-lg py-2.5 text-gray-500 hover:text-white hover:border-primary/30 transition-colors disabled:opacity-50"
               >
                 Admin Demo
               </button>
               <button
-                onClick={() => { setEmail("client@example.com"); setPassword("client123"); }}
-                className="text-xs border border-white/10 rounded-lg py-2 text-gray-500 hover:text-white hover:border-primary/30 transition-colors"
+                onClick={() => fillAndSubmit("client@example.com", "client123")}
+                disabled={login.isPending}
+                className="text-xs border border-white/10 rounded-lg py-2.5 text-gray-500 hover:text-white hover:border-primary/30 transition-colors disabled:opacity-50"
               >
                 Client Demo
               </button>

@@ -1,8 +1,8 @@
-import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated, isAdmin, getUserRole } from "@/lib/auth";
 
 import HomePage from "@/pages/public/HomePage";
 import ServicesPage from "@/pages/public/ServicesPage";
@@ -42,12 +42,23 @@ const queryClient = new QueryClient({
   },
 });
 
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const [location] = useLocation();
-  if (!isAuthenticated()) {
-    return <Redirect to="/login" />;
-  }
+function AdminRoute({ component: Component }: { component: React.ComponentType }) {
+  if (!isAuthenticated()) return <Redirect to="/login" />;
+  if (!isAdmin()) return <Redirect to="/client" />;
   return <Component />;
+}
+
+function ClientRoute({ component: Component }: { component: React.ComponentType }) {
+  if (!isAuthenticated()) return <Redirect to="/login" />;
+  // Allow admins to also view client portal if needed
+  return <Component />;
+}
+
+function AuthRedirect() {
+  if (isAuthenticated()) {
+    return <Redirect to={isAdmin() ? "/admin" : "/client"} />;
+  }
+  return <LoginPage />;
 }
 
 function Router() {
@@ -61,65 +72,65 @@ function Router() {
       <Route path="/contact" component={ContactPage} />
 
       {/* Auth */}
-      <Route path="/login" component={LoginPage} />
+      <Route path="/login" component={AuthRedirect} />
       <Route path="/register" component={RegisterPage} />
 
       {/* Admin */}
       <Route path="/admin">
-        {() => <ProtectedRoute component={DashboardPage} />}
+        {() => <AdminRoute component={DashboardPage} />}
       </Route>
       <Route path="/admin/leads">
-        {() => <ProtectedRoute component={LeadsPage} />}
+        {() => <AdminRoute component={LeadsPage} />}
       </Route>
       <Route path="/admin/clients">
-        {() => <ProtectedRoute component={ClientsPage} />}
+        {() => <AdminRoute component={ClientsPage} />}
       </Route>
       <Route path="/admin/projects">
-        {() => <ProtectedRoute component={ProjectsPage} />}
+        {() => <AdminRoute component={ProjectsPage} />}
       </Route>
       <Route path="/admin/tasks">
-        {() => <ProtectedRoute component={TasksPage} />}
+        {() => <AdminRoute component={TasksPage} />}
       </Route>
       <Route path="/admin/team">
-        {() => <ProtectedRoute component={TeamPage} />}
+        {() => <AdminRoute component={TeamPage} />}
       </Route>
       <Route path="/admin/invoices">
-        {() => <ProtectedRoute component={InvoicesPage} />}
+        {() => <AdminRoute component={InvoicesPage} />}
       </Route>
       <Route path="/admin/tickets">
-        {() => <ProtectedRoute component={TicketsPage} />}
+        {() => <AdminRoute component={TicketsPage} />}
       </Route>
       <Route path="/admin/services">
-        {() => <ProtectedRoute component={ServicesCMSPage} />}
+        {() => <AdminRoute component={ServicesCMSPage} />}
       </Route>
       <Route path="/admin/portfolio">
-        {() => <ProtectedRoute component={PortfolioCMSPage} />}
+        {() => <AdminRoute component={PortfolioCMSPage} />}
       </Route>
       <Route path="/admin/ai">
-        {() => <ProtectedRoute component={AIPage} />}
+        {() => <AdminRoute component={AIPage} />}
       </Route>
       <Route path="/admin/messages">
-        {() => <ProtectedRoute component={MessagesPage} />}
+        {() => <AdminRoute component={MessagesPage} />}
       </Route>
 
       {/* Client Portal */}
       <Route path="/client">
-        {() => <ProtectedRoute component={ClientDashboardPage} />}
+        {() => <ClientRoute component={ClientDashboardPage} />}
       </Route>
       <Route path="/client/projects">
-        {() => <ProtectedRoute component={ClientProjectsPage} />}
+        {() => <ClientRoute component={ClientProjectsPage} />}
       </Route>
       <Route path="/client/invoices">
-        {() => <ProtectedRoute component={ClientInvoicesPage} />}
+        {() => <ClientRoute component={ClientInvoicesPage} />}
       </Route>
       <Route path="/client/tickets">
-        {() => <ProtectedRoute component={ClientTicketsPage} />}
+        {() => <ClientRoute component={ClientTicketsPage} />}
       </Route>
       <Route path="/client/messages">
-        {() => <ProtectedRoute component={ClientMessagesPage} />}
+        {() => <ClientRoute component={ClientMessagesPage} />}
       </Route>
       <Route path="/client/notifications">
-        {() => <ProtectedRoute component={ClientNotificationsPage} />}
+        {() => <ClientRoute component={ClientNotificationsPage} />}
       </Route>
 
       {/* 404 */}

@@ -3,9 +3,9 @@ import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Briefcase, DollarSign, Ticket,
-  MessageSquare, Bell, LogOut, Menu
+  MessageSquare, Bell, LogOut, Menu, User
 } from "lucide-react";
-import { clearToken } from "@/lib/auth";
+import { clearToken, getUser } from "@/lib/auth";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/client" },
@@ -19,6 +19,8 @@ const navItems = [
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location, setLocation] = useLocation();
+  const user = getUser();
+  const initials = user?.name ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "CL";
 
   const handleLogout = () => {
     clearToken();
@@ -28,11 +30,27 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <div className="h-16 flex items-center px-5 border-b border-white/5 shrink-0">
-        <span className="text-lg font-black tracking-tighter text-white">
-          CPC<span className="text-primary">BUSINESS</span>
-          <span className="ml-2 text-xs font-medium text-gray-500 border border-white/10 px-1.5 py-0.5 rounded-full">Client</span>
-        </span>
+        <Link href="/">
+          <span className="text-lg font-black tracking-tighter text-white cursor-pointer">
+            CPC<span className="text-primary">BUSINESS</span>
+            <span className="ml-2 text-xs font-medium text-primary/70 border border-primary/20 px-1.5 py-0.5 rounded-full">Portal</span>
+          </span>
+        </Link>
       </div>
+
+      {/* User info */}
+      <div className="px-4 py-3 border-b border-white/5 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+            {initials}
+          </div>
+          <div className="min-w-0">
+            <p className="text-white text-xs font-semibold truncate">{user?.name ?? "Client"}</p>
+            <p className="text-gray-600 text-xs truncate">{user?.email ?? ""}</p>
+          </div>
+        </div>
+      </div>
+
       <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto hide-scrollbar">
         {navItems.map(({ icon: Icon, label, href }) => {
           const active = location === href || (href !== "/client" && location.startsWith(href));
@@ -56,7 +74,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <div className="p-3 border-t border-white/5 shrink-0">
         <button onClick={handleLogout} className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all">
           <LogOut size={16} />
-          <span className="text-sm font-medium">Logout</span>
+          <span className="text-sm font-medium">Sign Out</span>
         </button>
       </div>
     </div>
@@ -91,8 +109,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 <Bell size={14} />
               </span>
             </Link>
+            <Link href="/client/messages">
+              <span className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-500 hover:text-white cursor-pointer transition-colors">
+                <MessageSquare size={14} />
+              </span>
+            </Link>
             <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary text-xs font-bold">
-              CL
+              {initials}
             </div>
           </div>
         </header>
