@@ -1,26 +1,35 @@
 import { motion } from "framer-motion";
-import { Briefcase, CheckSquare, Ticket, DollarSign } from "lucide-react";
+import { Briefcase, CheckSquare, Ticket, IndianRupee } from "lucide-react";
 import ClientLayout from "@/components/layouts/ClientLayout";
 import { useGetProjects, useGetTasks, useGetTickets, useGetInvoices } from "@workspace/api-client-react";
+import { getUser, safeArray } from "@/lib/auth";
 
 export default function ClientDashboardPage() {
-  const { data: projects } = useGetProjects();
-  const { data: tasks } = useGetTasks();
-  const { data: tickets } = useGetTickets();
-  const { data: invoices } = useGetInvoices();
+  const currentUser = getUser();
+  const isNewUser = currentUser && currentUser.email !== "client@example.com" && currentUser.email !== "admin@cpcbusiness.com";
+
+  const { data: serverProjects } = useGetProjects();
+  const { data: serverTasks } = useGetTasks();
+  const { data: serverTickets } = useGetTickets();
+  const { data: serverInvoices } = useGetInvoices();
+
+  const projects = isNewUser ? [] : safeArray(serverProjects);
+  const tasks = isNewUser ? [] : safeArray(serverTasks);
+  const tickets = isNewUser ? [] : safeArray(serverTickets);
+  const invoices = isNewUser ? [] : safeArray(serverInvoices);
 
   const cards = [
-    { label: "Active Projects", value: projects?.filter(p => p.status === "active").length ?? 0, icon: Briefcase, color: "text-primary", bg: "bg-primary/10 border-primary/20" },
-    { label: "Open Tasks", value: tasks?.filter(t => t.status !== "done").length ?? 0, icon: CheckSquare, color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
-    { label: "Open Tickets", value: tickets?.filter(t => t.status === "open").length ?? 0, icon: Ticket, color: "text-red-400", bg: "bg-red-400/10 border-red-400/20" },
-    { label: "Unpaid Invoices", value: invoices?.filter(i => i.status === "pending").length ?? 0, icon: DollarSign, color: "text-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/20" },
+    { label: "Active Projects", value: projects.filter(p => p.status === "active").length, icon: Briefcase, color: "text-primary", bg: "bg-primary/10 border-primary/20" },
+    { label: "Open Tasks", value: tasks.filter(t => t.status !== "done").length, icon: CheckSquare, color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
+    { label: "Open Tickets", value: tickets.filter(t => t.status === "open").length, icon: Ticket, color: "text-red-400", bg: "bg-red-400/10 border-red-400/20" },
+    { label: "Unpaid Invoices", value: invoices.filter(i => i.status === "pending").length, icon: IndianRupee, color: "text-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/20" },
   ];
 
   return (
     <ClientLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-black text-white">Welcome Back</h1>
+          <h1 className="text-2xl font-black text-white">Welcome Back, {currentUser?.name || "Client"}</h1>
           <p className="text-gray-500 text-sm mt-1">Here's your project overview.</p>
         </div>
 
@@ -41,7 +50,7 @@ export default function ClientDashboardPage() {
         {/* Active Projects */}
         <div className="glass rounded-xl p-5">
           <h2 className="text-white font-bold mb-4">Active Projects</h2>
-          {projects && projects.filter(p => p.status === "active").length > 0 ? (
+          {projects.filter(p => p.status === "active").length > 0 ? (
             <div className="space-y-3">
               {projects.filter(p => p.status === "active").map((project) => (
                 <div key={project.id} className="flex items-center gap-4 p-3 rounded-lg bg-white/3 border border-white/5">
@@ -64,14 +73,14 @@ export default function ClientDashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-600 text-sm">No active projects.</p>
+            <p className="text-gray-600 text-sm">No active projects yet. Use "Request New Project" to get started.</p>
           )}
         </div>
 
         {/* Recent Invoices */}
         <div className="glass rounded-xl p-5">
           <h2 className="text-white font-bold mb-4">Recent Invoices</h2>
-          {invoices && invoices.length > 0 ? (
+          {invoices.length > 0 ? (
             <div className="space-y-2">
               {invoices.slice(0, 5).map((inv) => (
                 <div key={inv.id} className="flex items-center justify-between p-3 rounded-lg bg-white/3 border border-white/5">
@@ -80,7 +89,7 @@ export default function ClientDashboardPage() {
                     <p className="text-gray-600 text-xs">Due: {inv.dueDate}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-white font-semibold text-sm">${Number(inv.total).toLocaleString()}</p>
+                    <p className="text-white font-semibold text-sm">₹{Number(inv.total).toLocaleString()}</p>
                     <span className={`text-xs font-medium ${inv.status === "paid" ? "text-primary" : inv.status === "overdue" ? "text-red-400" : "text-yellow-400"}`}>
                       {inv.status}
                     </span>

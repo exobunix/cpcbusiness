@@ -8,7 +8,7 @@ import {
 import { safeArray } from "@/lib/auth";
 
 const statCards = [
-  { key: "totalRevenue", label: "Total Revenue", icon: DollarSign, format: (v: number) => `$${(v / 1000).toFixed(0)}K`, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+  { key: "totalRevenue", label: "Total Revenue", icon: DollarSign, format: (v: number) => `₹${(v / 1000).toFixed(0)}K`, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
   { key: "totalLeads", label: "Total Leads", icon: TrendingUp, format: (v: number) => String(v), color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
   { key: "totalProjects", label: "Projects", icon: Briefcase, format: (v: number) => String(v), color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20" },
   { key: "totalClients", label: "Clients", icon: UserCheck, format: (v: number) => String(v), color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/20" },
@@ -96,8 +96,8 @@ export default function DashboardPage() {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                   <XAxis dataKey="month" stroke="#4B5563" tick={{ fontSize: 11 }} />
-                  <YAxis stroke="#4B5563" tick={{ fontSize: 11 }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`} />
-                  <Tooltip contentStyle={{ background: "#111", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", color: "#fff" }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}K`]} />
+                  <YAxis stroke="#4B5563" tick={{ fontSize: 11 }} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`} />
+                  <Tooltip contentStyle={{ background: "#111", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", color: "#fff" }} formatter={(v: any) => [`₹${(v / 1000).toFixed(1)}K`]} />
                   <Area type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={2} fill="url(#revGrad)" name="Revenue" />
                   <Area type="monotone" dataKey="expenses" stroke="#6B7280" strokeWidth={1.5} fill="url(#expGrad)" name="Expenses" />
                 </AreaChart>

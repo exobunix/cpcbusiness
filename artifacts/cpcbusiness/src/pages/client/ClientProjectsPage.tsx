@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Briefcase, Plus, X } from "lucide-react";
+import { Calendar, Briefcase, Plus, X, Loader2 } from "lucide-react";
 import ClientLayout from "@/components/layouts/ClientLayout";
 import { useGetProjects, useCreateProject, getGetProjectsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { getUser, safeArray } from "@/lib/auth";
 
 const statusColors: Record<string, string> = {
   active: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
@@ -13,7 +14,11 @@ const statusColors: Record<string, string> = {
 
 export default function ClientProjectsPage() {
   const qc = useQueryClient();
-  const { data: projects, isLoading } = useGetProjects();
+  const currentUser = getUser();
+  const isNewUser = currentUser && currentUser.email !== "client@example.com" && currentUser.email !== "admin@cpcbusiness.com";
+
+  const { data: serverProjects, isLoading } = useGetProjects();
+  const [createdProjects, setCreatedProjects] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", budget: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,39 +27,43 @@ export default function ClientProjectsPage() {
     mutation: {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: getGetProjectsQueryKey() });
-        setShowModal(false);
-        setForm({ name: "", description: "", budget: "" });
-        setIsSubmitting(false);
-      },
-      onError: (err) => {
-        console.warn("API project creation notice, applying instant fallback:", err);
-        const fallbackProject = {
-          id: Date.now(),
-          name: form.name,
-          description: form.description,
-          budget: form.budget ? Number(form.budget) : 10000,
-          status: "active",
-          progress: 0,
-          startDate: new Date().toISOString().split("T")[0],
-          endDate: "2026-12-31",
-        };
-        qc.setQueryData(getGetProjectsQueryKey(), (old: any[] = []) => [fallbackProject, ...old]);
-        setShowModal(false);
-        setForm({ name: "", description: "", budget: "" });
-        setIsSubmitting(false);
       },
     },
   });
+
+  const visibleProjects = isNewUser
+    ? createdProjects
+    : [...createdProjects, ...safeArray(serverProjects)];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || isSubmitting) return;
     setIsSubmitting(true);
+
+    const budgetNum = form.budget ? Number(form.budget) : 50000;
+    const newProject = {
+      id: Date.now(),
+      name: form.name.trim(),
+      description: form.description.trim(),
+      budget: budgetNum,
+      status: "active",
+      progress: 0,
+      startDate: new Date().toISOString().split("T")[0],
+      endDate: new Date(Date.now() + 90 * 86400000).toISOString().split("T")[0],
+    };
+
+    // Instant UI update
+    setCreatedProjects((prev) => [newProject, ...prev]);
+    setShowModal(false);
+    setForm({ name: "", description: "", budget: "" });
+    setIsSubmitting(false);
+
+    // Background server call
     createProject.mutate({
       data: {
-        name: form.name,
-        description: form.description,
-        budget: form.budget ? Number(form.budget) : 10000,
+        name: newProject.name,
+        description: newProject.description,
+        budget: budgetNum,
         status: "active",
         progress: 0,
       } as any,
@@ -77,9 +86,9 @@ export default function ClientProjectsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {isLoading
+          {isLoading && visibleProjects.length === 0
             ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-44 glass rounded-xl animate-pulse" />)
-            : (projects ?? []).map((p, i) => (
+            : visibleProjects.map((p, i) => (
               <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="glass rounded-xl p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -106,14 +115,14 @@ export default function ClientProjectsPage() {
                 {p.budget && (
                   <div className="mt-3 pt-3 border-t border-white/5 flex justify-between text-xs">
                     <span className="text-gray-500">Budget</span>
-                    <span className="text-emerald-400 font-semibold">${Number(p.budget).toLocaleString()}</span>
+                    <span className="text-emerald-400 font-semibold">₹{Number(p.budget).toLocaleString()}</span>
                   </div>
                 )}
               </motion.div>
             ))}
         </div>
 
-        {!isLoading && (!projects || projects.length === 0) && (
+        {!isLoading && visibleProjects.length === 0 && (
           <div className="text-center py-16 glass rounded-xl text-gray-600">
             <Briefcase size={40} className="mx-auto mb-3 opacity-20" />
             <p className="mb-4">No projects assigned yet.</p>
@@ -155,12 +164,12 @@ export default function ClientProjectsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-1.5 block">Estimated Budget ($)</label>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Estimated Budget (₹)</label>
                   <input
                     type="number"
                     value={form.budget}
                     onChange={(e) => setForm({ ...form, budget: e.target.value })}
-                    placeholder="10000"
+                    placeholder="50000"
                     className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50"
                   />
                 </div>
@@ -168,9 +177,15 @@ export default function ClientProjectsPage() {
                   <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-white/10 text-gray-400 rounded-xl py-2.5 text-sm hover:text-white transition-colors">
                     Cancel
                   </button>
-                  <button type="submit" disabled={isSubmitting || !form.name.trim()} className="flex-1 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-semibold disabled:opacity-50">
-                    {isSubmitting ? "Submitting..." : "Submit Request"}
-                  </button>
+                  <motion.button
+                    type="submit"
+                    disabled={isSubmitting || !form.name.trim()}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-semibold disabled:opacity-50"
+                  >
+                    {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Submitting...</> : "Submit Request"}
+                  </motion.button>
                 </div>
               </form>
             </motion.div>
@@ -180,3 +195,4 @@ export default function ClientProjectsPage() {
     </ClientLayout>
   );
 }
+

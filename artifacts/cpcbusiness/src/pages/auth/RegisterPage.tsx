@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Loader2, UserPlus } from "lucide-react";
 import { useRegister } from "@workspace/api-client-react";
 import { setToken, setUser, registerUserLocally } from "@/lib/auth";
 
@@ -11,45 +11,21 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const register = useRegister({
     mutation: {
       onSuccess: (data) => {
-        setToken(data.token);
-        const newUser = {
-          id: data.user?.id || Date.now(),
-          name: data.user?.name || name,
-          email: data.user?.email || email,
-          role: data.user?.role ?? "client",
-          company: "Registered Client",
-          status: "active",
-          createdAt: new Date().toISOString(),
-        };
-        setUser(newUser);
-        registerUserLocally(newUser);
-        setLocation(newUser.role === "admin" ? "/admin" : "/client");
-      },
-      onError: (_err, variables) => {
-        const mockToken = btoa(`registered:${variables.data.email}:${Date.now()}`);
-        setToken(mockToken);
-        const newUser = {
-          id: Date.now(),
-          name: variables.data.name || name || "Registered User",
-          email: variables.data.email || email,
-          role: "client",
-          company: "Registered Client",
-          status: "active",
-          createdAt: new Date().toISOString(),
-        };
-        setUser(newUser);
-        registerUserLocally(newUser);
-        setLocation("/client");
+        if (data.token) setToken(data.token);
       },
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+
     const newUser = {
       id: Date.now(),
       name: name.trim() || "Registered User",
@@ -59,15 +35,25 @@ export default function RegisterPage() {
       status: "active",
       createdAt: new Date().toISOString(),
     };
+
+    setUser(newUser);
     registerUserLocally(newUser);
+    const mockToken = btoa(`registered:${email.trim()}:${Date.now()}`);
+    setToken(mockToken);
+
     register.mutate({ data: { name, email, password } });
+
+    setTimeout(() => {
+      setLocation("/client");
+    }, 250);
   };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 30, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
         <Link href="/">
@@ -97,8 +83,18 @@ export default function RegisterPage() {
               </button>
             </div>
           </div>
-          <motion.button type="submit" disabled={register.isPending} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl py-3.5 font-bold text-sm hover:bg-primary/90 transition-all disabled:opacity-50">
-            {register.isPending ? "Creating..." : "Create Account"}
+          <motion.button
+            type="submit"
+            disabled={isSubmitting}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl py-3.5 font-bold text-sm hover:bg-primary/90 transition-all disabled:opacity-50 emerald-glow-sm"
+          >
+            {isSubmitting ? (
+              <><Loader2 size={16} className="animate-spin" /> Creating Account...</>
+            ) : (
+              <><UserPlus size={16} /> Create Account</>
+            )}
           </motion.button>
         </form>
 

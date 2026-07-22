@@ -125,7 +125,7 @@ export default function ProjectsPage() {
 
                 <div className="flex items-center justify-between text-xs text-gray-600">
                   <span className="flex items-center gap-1"><Calendar size={10} /> {p.endDate}</span>
-                  {p.budget && <span className="text-emerald-400">${Number(p.budget).toLocaleString()}</span>}
+                  {p.budget && <span className="text-emerald-400">₹{Number(p.budget).toLocaleString()}</span>}
                 </div>
               </motion.div>
             ))}
@@ -189,8 +189,8 @@ export default function ProjectsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-1.5 block">Budget ($)</label>
-                  <input type="number" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} placeholder="10000" className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50" />
+                  <label className="text-xs text-gray-500 mb-1.5 block">Budget (₹)</label>
+                  <input type="number" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} placeholder="50000" className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50" />
                 </div>
               </div>
               <div className="flex gap-3 mt-6">

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CreditCard, CheckCircle, Plus, X, Receipt } from "lucide-react";
+import { CreditCard, CheckCircle, Plus, X, Receipt, Loader2 } from "lucide-react";
 import ClientLayout from "@/components/layouts/ClientLayout";
 import { useGetInvoices, useUpdateInvoice, useCreateInvoice, getGetInvoicesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { safeArray } from "@/lib/auth";
+import { getUser, safeArray } from "@/lib/auth";
 
 const statusColors: Record<string, string> = {
   paid: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
@@ -15,6 +15,9 @@ const statusColors: Record<string, string> = {
 
 export default function ClientInvoicesPage() {
   const qc = useQueryClient();
+  const currentUser = getUser();
+  const isNewUser = currentUser && currentUser.email !== "client@example.com" && currentUser.email !== "admin@cpcbusiness.com";
+
   const { data: serverInvoices, isLoading } = useGetInvoices();
   const [createdInvoices, setCreatedInvoices] = useState<any[]>([]);
   const [paidInvoiceIds, setPaidInvoiceIds] = useState<Set<any>>(new Set());
@@ -23,6 +26,7 @@ export default function ClientInvoicesPage() {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestForm, setRequestForm] = useState({ description: "", amount: "" });
   const [paying, setPaying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateInvoice = useUpdateInvoice({
     mutation: {
@@ -40,8 +44,9 @@ export default function ClientInvoicesPage() {
     },
   });
 
-  // Combine server invoices with newly created invoices and apply local paid status updates
-  const allInvoices = [...createdInvoices, ...safeArray(serverInvoices)].map((inv) => {
+  const baseList = isNewUser ? createdInvoices : [...createdInvoices, ...safeArray(serverInvoices)];
+
+  const allInvoices = baseList.map((inv) => {
     if (paidInvoiceIds.has(inv.id)) {
       return { ...inv, status: "paid", paidDate: inv.paidDate || new Date().toISOString().split("T")[0] };
     }
@@ -53,12 +58,10 @@ export default function ClientInvoicesPage() {
     setPaying(true);
     const invId = selectedInvoice.id;
 
-    // Instant local UI update
     setPaidInvoiceIds((prev) => new Set(prev).add(invId));
     setPaying(false);
     setSelectedInvoice(null);
 
-    // Background server update
     updateInvoice.mutate({
       id: invId,
       data: {
@@ -70,13 +73,14 @@ export default function ClientInvoicesPage() {
 
   const handleRequestSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!requestForm.amount) return;
+    if (!requestForm.amount || isSubmitting) return;
+    setIsSubmitting(true);
 
     const amountNum = Number(requestForm.amount);
     const newInv = {
       id: Date.now(),
       invoiceNumber: `INV-2026-${Math.floor(100 + Math.random() * 900)}`,
-      clientName: "Demo Client",
+      clientName: currentUser?.name || "Registered Client",
       projectName: requestForm.description || "Digital Agency Services",
       total: amountNum,
       subtotal: amountNum,
@@ -86,16 +90,15 @@ export default function ClientInvoicesPage() {
       dueDate: "2026-08-30",
     };
 
-    // Instant UI update
     setCreatedInvoices((prev) => [newInv, ...prev]);
     setShowRequestModal(false);
     setRequestForm({ description: "", amount: "" });
+    setIsSubmitting(false);
 
-    // Background server sync
     createInvoice.mutate({
       data: {
         clientId: 1,
-        clientName: "Demo Client",
+        clientName: currentUser?.name || "Registered Client",
         total: amountNum,
         subtotal: amountNum,
         tax: 0,
@@ -146,7 +149,7 @@ export default function ClientInvoicesPage() {
                       </td>
                       <td className="px-5 py-3 text-gray-400">{inv.issueDate}</td>
                       <td className="px-5 py-3 text-gray-400">{inv.dueDate}</td>
-                      <td className="px-5 py-3 text-white font-semibold">${Number(inv.total).toLocaleString()}</td>
+                      <td className="px-5 py-3 text-white font-semibold">₹{Number(inv.total).toLocaleString()}</td>
                       <td className="px-5 py-3">
                         <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${statusColors[inv.status] ?? statusColors.draft}`}>
                           {inv.status}
@@ -200,14 +203,14 @@ export default function ClientInvoicesPage() {
                 </div>
                 <div className="flex justify-between text-sm font-bold border-t border-white/5 pt-2 mt-2">
                   <span className="text-gray-300">Total Amount</span>
-                  <span className="text-emerald-400 text-lg">${Number(selectedInvoice.total).toLocaleString()}</span>
+                  <span className="text-emerald-400 text-lg">₹{Number(selectedInvoice.total).toLocaleString()}</span>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6">
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Cardholder Name</label>
-                  <input defaultValue="Demo Client" className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none" />
+                  <input defaultValue={currentUser?.name || "Registered Client"} className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none" />
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Card Number</label>
@@ -230,7 +233,7 @@ export default function ClientInvoicesPage() {
                   Cancel
                 </button>
                 <button onClick={handlePay} disabled={paying} className="flex-1 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-2">
-                  {paying ? "Processing..." : <><CreditCard size={15} /> Pay ${Number(selectedInvoice.total).toLocaleString()}</>}
+                  {paying ? <><Loader2 size={16} className="animate-spin" /> Processing...</> : <><CreditCard size={15} /> Pay ₹{Number(selectedInvoice.total).toLocaleString()}</>}
                 </button>
               </div>
             </motion.div>
@@ -258,13 +261,13 @@ export default function ClientInvoicesPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-1.5 block">Amount ($)*</label>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Amount (₹)*</label>
                   <input
                     type="number"
                     value={requestForm.amount}
                     onChange={(e) => setRequestForm({ ...requestForm, amount: e.target.value })}
                     required
-                    placeholder="2500"
+                    placeholder="25000"
                     className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50"
                   />
                 </div>
@@ -272,9 +275,15 @@ export default function ClientInvoicesPage() {
                   <button type="button" onClick={() => setShowRequestModal(false)} className="flex-1 border border-white/10 text-gray-400 rounded-xl py-2.5 text-sm hover:text-white transition-colors">
                     Cancel
                   </button>
-                  <button type="submit" disabled={!requestForm.amount} className="flex-1 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-semibold disabled:opacity-50">
-                    Generate Invoice
-                  </button>
+                  <motion.button
+                    type="submit"
+                    disabled={isSubmitting || !requestForm.amount}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl py-2.5 text-sm font-semibold disabled:opacity-50"
+                  >
+                    {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Generating...</> : "Generate Invoice"}
+                  </motion.button>
                 </div>
               </form>
             </motion.div>
@@ -284,3 +293,4 @@ export default function ClientInvoicesPage() {
     </ClientLayout>
   );
 }
+

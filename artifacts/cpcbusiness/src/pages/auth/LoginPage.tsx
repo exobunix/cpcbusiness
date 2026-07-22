@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Zap, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Zap, ArrowRight, Loader2 } from "lucide-react";
 import { useLogin } from "@workspace/api-client-react";
 import { setToken, setUser } from "@/lib/auth";
 
@@ -190,7 +190,7 @@ export default function LoginPage() {
               whileTap={{ scale: 0.98 }}
               className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl py-3.5 font-bold text-sm hover:bg-primary/90 transition-all disabled:opacity-50 emerald-glow-sm"
             >
-              {login.isPending ? "Signing in..." : <><Zap size={15} /> Sign In</>}
+              {login.isPending ? <><Loader2 size={16} className="animate-spin" /> Signing in...</> : <><Zap size={15} /> Sign In</>}
             </motion.button>
           </form>
 

@@ -120,7 +120,7 @@ export default function InvoicesPage() {
                   <card.icon size={13} className={card.color} />
                 </div>
               </div>
-              <div className="text-xl font-black text-white">${Number(card.value).toLocaleString()}</div>
+              <div className="text-xl font-black text-white">₹{Number(card.value).toLocaleString()}</div>
             </motion.div>
           ))}
         </div>
@@ -152,7 +152,7 @@ export default function InvoicesPage() {
                     <tr key={inv.id} className="hover:bg-white/2 transition-colors">
                       <td className="px-5 py-3 text-primary font-mono text-xs font-bold">{inv.invoiceNumber}</td>
                       <td className="px-5 py-3 text-white font-medium">{inv.clientName}</td>
-                      <td className="px-5 py-3 text-emerald-400 font-semibold">${Number(inv.total).toLocaleString()}</td>
+                      <td className="px-5 py-3 text-emerald-400 font-semibold">₹{Number(inv.total).toLocaleString()}</td>
                       <td className="px-5 py-3 text-gray-500">{inv.issueDate}</td>
                       <td className="px-5 py-3 text-gray-500">{inv.dueDate}</td>
                       <td className="px-5 py-3">
@@ -212,7 +212,7 @@ export default function InvoicesPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-gray-500 mb-1.5 block">Total Amount ($)*</label>
+                    <label className="text-xs text-gray-500 mb-1.5 block">Total Amount (₹)*</label>
                     <input
                       type="number"
                       value={form.amount}
