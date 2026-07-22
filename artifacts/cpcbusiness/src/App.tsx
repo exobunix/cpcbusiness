@@ -158,13 +158,19 @@ function Router() {
 }
 
 function App() {
+  const baseUrl = import.meta.env.BASE_URL && import.meta.env.BASE_URL !== "/" ? import.meta.env.BASE_URL.replace(/\/$/, "") : undefined;
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="dark">
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <div className="dark min-h-screen bg-background text-foreground">
+          {baseUrl ? (
+            <WouterRouter base={baseUrl}>
+              <Router />
+            </WouterRouter>
+          ) : (
             <Router />
-          </WouterRouter>
+          )}
           <Toaster />
         </div>
       </TooltipProvider>

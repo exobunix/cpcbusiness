@@ -2,8 +2,8 @@
   "version": 2,
   "buildCommand": "pnpm run build",
   "outputDirectory": "dist",
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
