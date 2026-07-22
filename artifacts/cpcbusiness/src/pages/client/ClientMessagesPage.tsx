@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Send, UserCheck, Zap } from "lucide-react";
 import ClientLayout from "@/components/layouts/ClientLayout";
-import { useGetMessages, getGetMessagesQueryKey } from "@workspace/api-client-react";
+import { useGetMessages, useSendMessage, getGetMessagesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getUser } from "@/lib/auth";
 import { getSocket } from "@/lib/socket";
@@ -15,44 +15,66 @@ export default function ClientMessagesPage() {
   const [typingUser, setTypingUser] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Fetch existing messages
-  const { data: initialMessages } = useGetMessages();
+  // Poll HTTP API every 3s as guaranteed fallback
+  const { data: serverMessages } = useGetMessages(undefined, {
+    query: { refetchInterval: 3000 } as any,
+  });
 
-  // Sync initial messages to live state
+  const sendMessage = useSendMessage({
+    mutation: {
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: getGetMessagesQueryKey() });
+      },
+    },
+  });
+
+  // Sync server messages into live state preserving un-synced local messages
   useEffect(() => {
-    if (initialMessages) {
-      setLiveMessages(initialMessages);
+    if (serverMessages && serverMessages.length > 0) {
+      setLiveMessages((prev) => {
+        const serverMap = new Map(serverMessages.map((m: any) => [String(m.id || m._id), m]));
+        const localUnsynced = prev.filter((m: any) => !serverMap.has(String(m.id || m._id)));
+        return [...serverMessages, ...localUnsynced];
+      });
     }
-  }, [initialMessages]);
+  }, [serverMessages]);
 
   // Connect Socket.IO
   useEffect(() => {
-    const socket = getSocket();
-    socket.emit("join_room", "client_portal");
+    let socket: any = null;
+    try {
+      socket = getSocket();
+      socket.emit("join_room", "client_portal");
 
-    const handleNewMessage = (newMsg: any) => {
-      setLiveMessages((prev) => {
-        if (prev.some((m) => String(m.id || m._id) === String(newMsg.id || newMsg._id))) {
-          return prev;
+      const handleNewMessage = (newMsg: any) => {
+        setLiveMessages((prev) => {
+          if (prev.some((m) => String(m.id || m._id) === String(newMsg.id || newMsg._id))) {
+            return prev;
+          }
+          return [...prev, newMsg];
+        });
+        qc.invalidateQueries({ queryKey: getGetMessagesQueryKey() });
+      };
+
+      const handleUserTyping = (data: { userName: string; isTyping: boolean; role: string }) => {
+        if (data.role === "admin") {
+          setTypingUser(data.isTyping ? data.userName || "Admin" : null);
         }
-        return [...prev, newMsg];
-      });
-      qc.invalidateQueries({ queryKey: getGetMessagesQueryKey() });
-    };
+      };
 
-    const handleUserTyping = (data: { userName: string; isTyping: boolean; role: string }) => {
-      if (data.role === "admin") {
-        setTypingUser(data.isTyping ? data.userName || "Admin" : null);
-      }
-    };
+      socket.on("new_message", handleNewMessage);
+      socket.on("user_typing", handleUserTyping);
 
-    socket.on("new_message", handleNewMessage);
-    socket.on("user_typing", handleUserTyping);
-
-    return () => {
-      socket.off("new_message", handleNewMessage);
-      socket.off("user_typing", handleUserTyping);
-    };
+      return () => {
+        if (socket) {
+          socket.off("new_message", handleNewMessage);
+          socket.off("user_typing", handleUserTyping);
+        }
+      };
+    } catch (e) {
+      console.warn("Socket.IO client init notice:", e);
+      return () => {};
+    }
   }, [qc]);
 
   useEffect(() => {
@@ -61,26 +83,49 @@ export default function ClientMessagesPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
-    const socket = getSocket();
-    socket.emit("typing", { userName: currentUser?.name || "Client", isTyping: e.target.value.length > 0, role: "client" });
+    try {
+      const socket = getSocket();
+      socket.emit("typing", { userName: currentUser?.name || "Client", isTyping: e.target.value.length > 0, role: "client" });
+    } catch (e) {}
   };
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    const text = message.trim();
+    if (!text) return;
 
-    const socket = getSocket();
-    const payload = {
-      content: message.trim(),
+    const newMsgObj = {
+      id: Date.now(),
+      content: text,
       senderName: currentUser?.name || "Client User",
       senderRole: "client",
       senderId: currentUser?.id || 2,
-      recipientId: 1, // Admin ID
+      recipientId: 1,
+      createdAt: new Date().toISOString(),
     };
 
-    socket.emit("send_message", payload);
-    socket.emit("typing", { userName: currentUser?.name || "Client", isTyping: false, role: "client" });
+    // 1. Instant local UI update
+    setLiveMessages((prev) => [...prev, newMsgObj]);
     setMessage("");
+
+    // 2. Dual Dispatch: HTTP REST API + Socket.IO
+    try {
+      sendMessage.mutate({
+        data: {
+          content: text,
+          senderName: currentUser?.name || "Client User",
+          senderRole: "client",
+          senderId: currentUser?.id || 2,
+          recipientId: 1,
+        } as any,
+      });
+    } catch (e) {}
+
+    try {
+      const socket = getSocket();
+      socket.emit("send_message", newMsgObj);
+      socket.emit("typing", { userName: currentUser?.name || "Client", isTyping: false, role: "client" });
+    } catch (e) {}
   };
 
   return (
@@ -89,7 +134,7 @@ export default function ClientMessagesPage() {
         <div className="flex items-center justify-between mb-5 shrink-0">
           <div>
             <h1 className="text-2xl font-black text-white flex items-center gap-2">
-              Live Support Chat <span className="text-xs bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><Zap size={12} /> Socket.IO</span>
+              Live Support Chat <span className="text-xs bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><Zap size={12} /> Socket.IO + Polling</span>
             </h1>
             <p className="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Connected to CPCBusiness Support Team
@@ -100,10 +145,10 @@ export default function ClientMessagesPage() {
         <div className="flex-1 glass rounded-xl flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {liveMessages && liveMessages.length > 0 ? (
-              liveMessages.map((msg: any) => {
+              liveMessages.map((msg: any, i: number) => {
                 const isMe = msg.senderRole === "client" || msg.senderId === currentUser?.id;
                 return (
-                  <div key={msg.id || msg._id || Math.random()} className={`flex gap-3 ${isMe ? "flex-row-reverse" : ""}`}>
+                  <div key={msg.id || msg._id || i} className={`flex gap-3 ${isMe ? "flex-row-reverse" : ""}`}>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isMe ? "bg-primary text-primary-foreground" : "bg-white/10 text-white border border-white/15"}`}>
                       {(msg.senderName || (isMe ? "You" : "Admin")).slice(0, 2).toUpperCase()}
                     </div>
