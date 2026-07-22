@@ -4,6 +4,7 @@ import { CreditCard, CheckCircle, Plus, X, Receipt } from "lucide-react";
 import ClientLayout from "@/components/layouts/ClientLayout";
 import { useGetInvoices, useUpdateInvoice, useCreateInvoice, getGetInvoicesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { safeArray } from "@/lib/auth";
 
 const statusColors: Record<string, string> = {
   paid: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
@@ -40,7 +41,7 @@ export default function ClientInvoicesPage() {
   });
 
   // Combine server invoices with newly created invoices and apply local paid status updates
-  const allInvoices = [...createdInvoices, ...(serverInvoices ?? [])].map((inv) => {
+  const allInvoices = [...createdInvoices, ...safeArray(serverInvoices)].map((inv) => {
     if (paidInvoiceIds.has(inv.id)) {
       return { ...inv, status: "paid", paidDate: inv.paidDate || new Date().toISOString().split("T")[0] };
     }

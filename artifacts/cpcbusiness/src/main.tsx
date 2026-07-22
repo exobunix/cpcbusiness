@@ -6,7 +6,8 @@ import { getToken } from "./lib/auth";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 // Configure base API URL for Vercel & Production deployments
-const apiUrl = import.meta.env.VITE_API_URL || (typeof window !== "undefined" && window.location.hostname.includes("vercel.app") ? "https://cpcbusiness.onrender.com" : undefined);
+const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+const apiUrl = import.meta.env.VITE_API_URL || (!isLocal ? "https://cpcbusiness.onrender.com" : undefined);
 
 if (apiUrl) {
   setBaseUrl(apiUrl);

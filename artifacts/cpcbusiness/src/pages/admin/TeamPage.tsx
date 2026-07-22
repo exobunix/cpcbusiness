@@ -4,6 +4,7 @@ import { Plus, X, Users } from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useGetTeamMembers, useCreateTeamMember, useDeleteTeamMember, getGetTeamMembersQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { safeArray } from "@/lib/auth";
 
 const ROLES = ["Super Admin", "Admin", "Project Manager", "Sales Manager", "Developer", "Designer", "Marketing Executive", "Client"];
 const DEPTS = ["Executive", "Engineering", "Design", "Sales", "Marketing", "Operations", "Support"];
@@ -26,13 +27,15 @@ export default function TeamPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", role: "Developer", department: "Engineering", phone: "" });
 
+  const safeTeam = safeArray(team);
+
   return (
     <AdminLayout>
       <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black text-white">Team</h1>
-            <p className="text-gray-500 text-sm mt-1">{team?.length ?? 0} members</p>
+            <p className="text-gray-500 text-sm mt-1">{safeTeam.length} members</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
@@ -46,7 +49,7 @@ export default function TeamPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {isLoading
             ? Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-40 glass rounded-xl animate-pulse" />)
-            : (team ?? []).map((member: any, i) => (
+            : safeTeam.map((member: any, i) => (
               <motion.div
                 key={member.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -56,7 +59,7 @@ export default function TeamPage() {
               >
                 <div className="relative inline-block mb-3">
                   <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/25 to-emerald-800/25 border-2 border-primary/20 flex items-center justify-center text-primary font-black text-lg mx-auto">
-                    {member.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                    {(member.name || "User").split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
                   </div>
                   <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background ${member.isActive ? "bg-emerald-400" : "bg-gray-500"}`} />
                 </div>
@@ -76,7 +79,7 @@ export default function TeamPage() {
             ))}
         </div>
 
-        {!isLoading && (!team || team.length === 0) && (
+        {!isLoading && safeTeam.length === 0 && (
           <div className="text-center py-20 glass rounded-xl text-gray-600">
             <Users size={40} className="mx-auto mb-3 opacity-20" />
             <p>No team members yet.</p>

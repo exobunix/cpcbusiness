@@ -4,12 +4,13 @@ import { Plus, X, CheckSquare } from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { useGetTasks, useCreateTask, useUpdateTask, useDeleteTask, getGetTasksQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { safeArray } from "@/lib/auth";
 
 const COLS = [
-  { key: "todo", label: "To Do", color: "border-gray-500/30" },
-  { key: "in_progress", label: "In Progress", color: "border-blue-500/30" },
-  { key: "review", label: "Review", color: "border-yellow-500/30" },
-  { key: "done", label: "Done", color: "border-emerald-500/30" },
+  { key: "todo", label: "To Do", color: "border-gray-500/20" },
+  { key: "in_progress", label: "In Progress", color: "border-blue-500/20" },
+  { key: "review", label: "Review", color: "border-purple-500/20" },
+  { key: "done", label: "Done", color: "border-emerald-500/20" },
 ];
 
 const priorityColors: Record<string, string> = {
@@ -28,13 +29,15 @@ export default function TasksPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", status: "todo", priority: "medium", dueDate: "" });
 
+  const safeTasksList = safeArray(tasks);
+
   return (
     <AdminLayout>
       <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black text-white">Tasks</h1>
-            <p className="text-gray-500 text-sm mt-1">{tasks?.length ?? 0} tasks</p>
+            <p className="text-gray-500 text-sm mt-1">{safeTasksList.length} tasks</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
@@ -47,7 +50,7 @@ export default function TasksPage() {
 
         <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
           {COLS.map((col) => {
-            const colTasks = tasks?.filter((t) => t.status === col.key) ?? [];
+            const colTasks = safeTasksList.filter((t) => t.status === col.key);
             return (
               <div key={col.key} className={`flex-shrink-0 w-64 rounded-xl border ${col.color} bg-white/2 p-3`}>
                 <div className="flex items-center justify-between mb-3">

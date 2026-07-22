@@ -5,6 +5,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import {
   useGetDashboardStats, useGetRevenueChart, useGetRecentActivity, useGetLeadPipeline
 } from "@workspace/api-client-react";
+import { safeArray } from "@/lib/auth";
 
 const statCards = [
   { key: "totalRevenue", label: "Total Revenue", icon: DollarSign, format: (v: number) => `$${(v / 1000).toFixed(0)}K`, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
@@ -30,6 +31,10 @@ export default function DashboardPage() {
   const { data: revenue } = useGetRevenueChart();
   const { data: activity } = useGetRecentActivity();
   const { data: pipeline } = useGetLeadPipeline();
+
+  const safeRevenue = safeArray(revenue);
+  const safePipeline = safeArray(pipeline);
+  const safeAct = safeArray(activity);
 
   return (
     <AdminLayout>
@@ -76,9 +81,9 @@ export default function DashboardPage() {
             className="lg:col-span-2 glass rounded-xl p-6"
           >
             <h2 className="text-white font-bold mb-5">Revenue Overview</h2>
-            {revenue ? (
+            {safeRevenue.length > 0 ? (
               <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={revenue}>
+                <AreaChart data={safeRevenue}>
                   <defs>
                     <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
@@ -110,9 +115,9 @@ export default function DashboardPage() {
             className="glass rounded-xl p-6"
           >
             <h2 className="text-white font-bold mb-5">Lead Pipeline</h2>
-            {pipeline ? (
+            {safePipeline.length > 0 ? (
               <div className="space-y-3">
-                {pipeline.filter(s => s.count > 0).map((stage) => (
+                {safePipeline.filter(s => s.count > 0).map((stage) => (
                   <div key={stage.stage} className="space-y-1">
                     <div className="flex justify-between text-xs">
                       <span className="text-gray-400 capitalize">{stage.stage.replace("_", " ")}</span>
@@ -121,7 +126,7 @@ export default function DashboardPage() {
                     <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(100, (stage.count / Math.max(...pipeline.map(s => s.count))) * 100)}%` }}
+                        animate={{ width: `${Math.min(100, (stage.count / Math.max(...safePipeline.map(s => s.count))) * 100)}%` }}
                         transition={{ duration: 0.8, delay: 0.2 }}
                         className="h-full bg-primary rounded-full"
                       />
@@ -147,9 +152,9 @@ export default function DashboardPage() {
           className="glass rounded-xl p-6"
         >
           <h2 className="text-white font-bold mb-5">Recent Activity</h2>
-          {activity && activity.length > 0 ? (
+          {safeAct.length > 0 ? (
             <div className="space-y-3">
-              {activity.slice(0, 8).map((item) => (
+              {safeAct.slice(0, 8).map((item) => (
                 <div key={item.id} className="flex items-center gap-3 py-2 border-b border-white/3 last:border-0">
                   <span className="text-base">{activityIcons[item.type] ?? "📌"}</span>
                   <div className="flex-1 min-w-0">
