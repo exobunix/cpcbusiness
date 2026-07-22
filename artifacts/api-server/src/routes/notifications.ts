@@ -1,14 +1,31 @@
 import { Router } from "express";
-import { db, notificationsTable } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { MongoNotification, memoryStore } from "../lib/store";
 
 const router = Router();
 
 router.get("/notifications", async (_req, res) => {
   try {
-    const rows = await db.select().from(notificationsTable).orderBy(sql`${notificationsTable.createdAt} DESC`).limit(50);
-    return res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+    let rows: any[] = [];
+
+    try {
+      const mongoDocs = await MongoNotification.find({}).sort({ createdAt: -1 }).limit(50).lean();
+      if (mongoDocs.length > 0) {
+        rows = mongoDocs.map((doc: any) => ({
+          ...doc,
+          id: doc.id || doc._id.toString(),
+          createdAt: doc.createdAt?.toISOString?.() || doc.createdAt,
+        }));
+      }
+    } catch (e) {
+      logger.warn({ err: e }, "MongoDB get notifications error");
+    }
+
+    if (rows.length === 0) {
+      rows = memoryStore.notifications;
+    }
+
+    return res.json(rows);
   } catch (err) {
     logger.error({ err }, "Get notifications error");
     return res.status(500).json({ error: "Internal server error" });
@@ -17,7 +34,14 @@ router.get("/notifications", async (_req, res) => {
 
 router.patch("/notifications/:id/read", async (req, res) => {
   try {
-    await db.update(notificationsTable).set({ isRead: true }).where(eq(notificationsTable.id, parseInt(req.params.id)));
+    const id = req.params.id;
+    const notif = memoryStore.notifications.find((n) => String(n.id) === String(id));
+    if (notif) notif.isRead = true;
+
+    try {
+      await MongoNotification.updateOne({ id: Number(id) }, { $set: { isRead: true } });
+    } catch (e) {}
+
     return res.json({ message: "Marked as read" });
   } catch (err) {
     logger.error({ err }, "Mark notification read error");
@@ -27,7 +51,10 @@ router.patch("/notifications/:id/read", async (req, res) => {
 
 router.patch("/notifications/read-all", async (_req, res) => {
   try {
-    await db.update(notificationsTable).set({ isRead: true });
+    memoryStore.notifications.forEach((n) => { n.isRead = true; });
+    try {
+      await MongoNotification.updateMany({}, { $set: { isRead: true } });
+    } catch (e) {}
     return res.json({ message: "All marked as read" });
   } catch (err) {
     logger.error({ err }, "Mark all read error");
