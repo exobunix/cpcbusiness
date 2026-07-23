@@ -43,7 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {collapsed ? (
           <img src="/logo.png" alt="C" className="h-8 w-auto object-contain brightness-0 invert" />
         ) : (
-          <img src="/logo.png" alt="CPCBusiness" className="h-12 w-auto object-contain brightness-0 invert" />
+          <img src="/logo.png" alt="CPCBusiness" className="h-16 w-auto object-contain brightness-0 invert" />
         )}
       </div>
 

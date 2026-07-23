@@ -43,7 +43,7 @@ export default function PublicNav() {
         <Link href="/">
           <div className="flex items-center gap-2 cursor-pointer select-none">
             {/* The brand logo with black text is always rendered on light navbar background */}
-            <img src="/logo.png" alt="CPCBusiness" className="h-14 w-auto object-contain" />
+            <img src="/logo.png" alt="CPCBusiness" className="h-16 w-auto object-contain" />
           </div>
         </Link>
 

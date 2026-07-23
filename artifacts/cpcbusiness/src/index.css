@@ -198,3 +198,54 @@
   .hide-scrollbar::-webkit-scrollbar { display: none; }
   .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
+
+/* Light theme overrides for admin/client pages to fix white text issues */
+html:not(.dark) {
+  .text-white {
+    color: hsl(var(--foreground)) !important;
+  }
+  .text-gray-100, .text-gray-200, .text-gray-300, .text-gray-400 {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+  .bg-white\/5 {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+  }
+  .bg-white\/10 {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+  }
+  .bg-white\/20 {
+    background-color: rgba(0, 0, 0, 0.12) !important;
+  }
+  .bg-white\/40 {
+    background-color: rgba(0, 0, 0, 0.20) !important;
+  }
+  .bg-black\/50 {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+  }
+  .border-white\/5, .border-white\/10, .border-white\/20 {
+    border-color: hsl(var(--border)) !important;
+  }
+  
+  /* Make card backgrounds and panels stand out with elegant borders and shadows */
+  .glass {
+    background: #ffffff !important;
+    border: 1px solid rgba(181, 137, 59, 0.2) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+  }
+  .glass-strong {
+    background: #ffffff !important;
+    border: 1px solid rgba(181, 137, 59, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  /* Ensure form inputs look highly professional */
+  input, select, textarea {
+    background-color: #ffffff !important;
+    color: hsl(var(--foreground)) !important;
+    border-color: rgba(181, 137, 59, 0.25) !important;
+  }
+  input::placeholder, textarea::placeholder {
+    color: rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
