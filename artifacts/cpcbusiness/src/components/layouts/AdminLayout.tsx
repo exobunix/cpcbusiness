@@ -50,11 +50,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className={`h-20 flex items-center justify-center bg-sidebar border-b border-sidebar-border shrink-0 ${collapsed ? "px-1" : "px-4"}`}>
+      <div className={`h-20 flex items-center justify-center bg-white border-b border-sidebar-border shrink-0 ${collapsed ? "px-1" : "px-4"}`}>
         {collapsed ? (
-          <img src={logoSrc} alt="C" style={{ height: `${Math.min(settings?.logoHeightSidebar || 60, 40)}px` }} className={`w-auto object-contain ${isDefaultLogo ? "brightness-0 invert" : ""}`} />
+          <img src={logoSrc} alt="C" style={{ height: `${Math.min(settings?.logoHeightSidebar || 60, 40)}px` }} className="w-auto object-contain" />
         ) : (
-          <img src={logoSrc} alt="CPCBusiness" style={{ height: `${settings?.logoHeightSidebar || 60}px` }} className={`w-auto object-contain ${isDefaultLogo ? "brightness-0 invert" : ""}`} />
+          <img src={logoSrc} alt="CPCBusiness" style={{ height: `${settings?.logoHeightSidebar || 60}px` }} className="w-auto object-contain" />
         )}
       </div>
 
