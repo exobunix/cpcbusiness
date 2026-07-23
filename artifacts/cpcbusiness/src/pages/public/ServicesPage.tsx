@@ -31,7 +31,7 @@ export default function ServicesPage() {
   const displayServices = (services && services.length > 0) ? services : defaultServices;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden pt-20">
       <PublicNav />
 
       <section className="pt-32 pb-20 text-center px-6 relative">
@@ -39,8 +39,8 @@ export default function ServicesPage() {
         <div className="relative z-10 max-w-3xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="text-primary text-sm font-semibold uppercase tracking-widest">Our Services</span>
-            <h1 className="text-5xl md:text-6xl font-black text-white mt-4 mb-6">What We Build</h1>
-            <p className="text-gray-400 text-lg leading-relaxed">From concept to deployment — we architect digital solutions that define industries.</p>
+            <h1 className="text-5xl md:text-6xl font-black text-foreground mt-4 mb-6">What We Build</h1>
+            <p className="text-muted-foreground text-lg leading-relaxed">From concept to deployment — we architect digital solutions that define industries.</p>
           </motion.div>
         </div>
       </section>
@@ -65,12 +65,12 @@ export default function ServicesPage() {
                   </div>
                   <div className="flex-1">
                     <span className="text-xs font-semibold text-primary uppercase tracking-wider">{s.category}</span>
-                    <h3 className="text-white font-bold text-xl mt-1 mb-2">{s.title}</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-4">{s.shortDescription || s.description?.slice(0, 100)}</p>
+                    <h3 className="text-foreground font-bold text-xl mt-1 mb-2">{s.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">{s.shortDescription || s.description?.slice(0, 100)}</p>
                     {s.features && s.features.length > 0 && (
                       <ul className="space-y-1.5 mb-4">
                         {(s.features as string[]).slice(0, 4).map((f: string) => (
-                          <li key={f} className="flex items-center gap-2 text-sm text-gray-400">
+                          <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                             <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                             {f}
                           </li>
@@ -80,7 +80,7 @@ export default function ServicesPage() {
                     {s.technologies && s.technologies.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {(s.technologies as string[]).slice(0, 4).map((t: string) => (
-                          <span key={t} className="text-xs px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-gray-400">{t}</span>
+                          <span key={t} className="text-xs px-2.5 py-1 rounded-lg bg-card border border-border text-muted-foreground">{t}</span>
                         ))}
                       </div>
                     )}

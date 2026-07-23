@@ -51,7 +51,7 @@ export default function AboutPage() {
     : defaultTeam;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden pt-20">
       <PublicNav />
 
       <section className="pt-32 pb-20 text-center px-6 relative">
@@ -59,8 +59,8 @@ export default function AboutPage() {
         <div className="relative z-10 max-w-3xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="text-primary text-sm font-semibold uppercase tracking-widest">About Us</span>
-            <h1 className="text-5xl md:text-6xl font-black text-white mt-4 mb-6">{aboutTitle}</h1>
-            <p className="text-gray-400 text-lg leading-relaxed">{aboutDescription}</p>
+            <h1 className="text-5xl md:text-6xl font-black text-foreground mt-4 mb-6">{aboutTitle}</h1>
+            <p className="text-muted-foreground text-lg leading-relaxed">{aboutDescription}</p>
           </motion.div>
         </div>
       </section>
@@ -79,17 +79,17 @@ export default function AboutPage() {
             className="glass-strong rounded-2xl p-8"
           >
             <item.icon size={32} className="text-primary mb-5" />
-            <h2 className="text-2xl font-black text-white mb-3">{item.title}</h2>
-            <p className="text-gray-400 leading-relaxed">{item.text}</p>
+            <h2 className="text-2xl font-black text-foreground mb-3">{item.title}</h2>
+            <p className="text-muted-foreground leading-relaxed">{item.text}</p>
           </motion.div>
         ))}
       </section>
 
       {/* Values */}
-      <section className="py-16 bg-black/30 border-y border-white/5">
+      <section className="py-16 bg-card/20 border-y border-border">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <h2 className="text-4xl font-black text-white">Our Values</h2>
+            <h2 className="text-4xl font-black text-foreground">Our Values</h2>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {dbValues.map((v: any, i: number) => {
@@ -106,8 +106,8 @@ export default function AboutPage() {
                   <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
                     <Icon size={20} className="text-primary" />
                   </div>
-                  <h3 className="text-white font-bold mb-2">{v.title}</h3>
-                  <p className="text-gray-500 text-sm">{v.desc}</p>
+                  <h3 className="text-foreground font-bold mb-2">{v.title}</h3>
+                  <p className="text-muted-foreground text-sm">{v.desc}</p>
                 </motion.div>
               );
             })}
@@ -119,7 +119,7 @@ export default function AboutPage() {
       <section className="max-w-7xl mx-auto px-6 py-24">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
           <span className="text-primary text-sm font-semibold uppercase tracking-widest">Leadership</span>
-          <h2 className="text-4xl font-black text-white mt-3">The Team Behind the Magic</h2>
+          <h2 className="text-4xl font-black text-foreground mt-3">The Team Behind the Magic</h2>
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {dbTeam.map((member: any, i: number) => (
@@ -131,12 +131,12 @@ export default function AboutPage() {
               transition={{ delay: i * 0.07 }}
               className="glass rounded-xl p-6 flex items-center gap-4"
             >
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/30 to-emerald-700/30 border border-primary/20 flex items-center justify-center text-primary font-bold text-lg shrink-0">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-lg shrink-0">
                 {member.name.split(" ").map((n: string) => n[0]).join("")}
               </div>
               <div>
-                <h3 className="text-white font-bold">{member.name}</h3>
-                <p className="text-gray-500 text-sm">{member.role}</p>
+                <h3 className="text-foreground font-bold">{member.name}</h3>
+                <p className="text-muted-foreground text-sm">{member.role}</p>
                 <span className="text-xs text-primary/70 font-medium">{member.dept}</span>
               </div>
             </motion.div>

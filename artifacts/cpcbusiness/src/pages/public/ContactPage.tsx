@@ -27,7 +27,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden pt-20">
       <PublicNav />
 
       <section className="pt-32 pb-16 text-center px-6 relative">
@@ -35,15 +35,15 @@ export default function ContactPage() {
         <div className="relative z-10 max-w-2xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="text-primary text-sm font-semibold uppercase tracking-widest">Contact</span>
-            <h1 className="text-5xl md:text-6xl font-black text-white mt-4 mb-4">Let's Talk</h1>
-            <p className="text-gray-400">Ready to start your next project? We're here to help.</p>
+            <h1 className="text-5xl md:text-6xl font-black text-foreground mt-4 mb-4">Let's Talk</h1>
+            <p className="text-muted-foreground">Ready to start your next project? We're here to help.</p>
           </motion.div>
         </div>
       </section>
 
       <section className="max-w-5xl mx-auto px-6 pb-24 grid grid-cols-1 md:grid-cols-2 gap-10">
         <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-          <h2 className="text-2xl font-black text-white mb-6">Get in Touch</h2>
+          <h2 className="text-2xl font-black text-foreground mb-6">Get in Touch</h2>
           <div className="space-y-5">
             {[
               { icon: Mail, label: "Email", value: footerEmail },
@@ -55,17 +55,16 @@ export default function ContactPage() {
                   <c.icon size={16} className="text-primary" />
                 </div>
                 <div>
-                  <div className="text-gray-500 text-xs font-medium uppercase tracking-wider mb-0.5">{c.label}</div>
-                  <div className="text-gray-200 text-sm">{c.value}</div>
+                  <div className="text-muted-foreground text-xs font-medium uppercase tracking-wider mb-0.5">{c.label}</div>
+                  <div className="text-foreground text-sm">{c.value}</div>
                 </div>
               </div>
             ))}
           </div>
 
-
           <div className="mt-10 glass rounded-xl p-5">
-            <h3 className="text-white font-bold mb-1">Schedule a Discovery Call</h3>
-            <p className="text-gray-500 text-sm mb-4">Book a 30-minute session with our team to discuss your project.</p>
+            <h3 className="text-foreground font-bold mb-1">Schedule a Discovery Call</h3>
+            <p className="text-muted-foreground text-sm mb-4">Book a 30-minute session with our team to discuss your project.</p>
             <button className="w-full bg-primary text-primary-foreground rounded-lg py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors">
               Book a Call
             </button>
@@ -76,40 +75,40 @@ export default function ContactPage() {
           {sent ? (
             <div className="glass rounded-2xl p-10 text-center h-full flex flex-col items-center justify-center">
               <CheckCircle2 size={48} className="text-primary mb-4" />
-              <h3 className="text-white font-black text-xl mb-2">Message Sent!</h3>
-              <p className="text-gray-500">We'll get back to you within 24 hours.</p>
+              <h3 className="text-foreground font-black text-xl mb-2">Message Sent!</h3>
+              <p className="text-muted-foreground">We'll get back to you within 24 hours.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="glass rounded-2xl p-7 space-y-5">
-              <h2 className="text-xl font-black text-white">Send a Message</h2>
+              <h2 className="text-xl font-black text-foreground">Send a Message</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-gray-400 mb-1.5 block">First Name</label>
-                  <input required className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50 transition-colors" placeholder="John" />
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">First Name</label>
+                  <input required className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary/50 transition-colors" placeholder="John" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-400 mb-1.5 block">Last Name</label>
-                  <input required className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50 transition-colors" placeholder="Doe" />
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Last Name</label>
+                  <input required className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary/50 transition-colors" placeholder="Doe" />
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-400 mb-1.5 block">Email</label>
-                <input type="email" required className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50 transition-colors" placeholder="john@company.com" />
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Email</label>
+                <input type="email" required className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary/50 transition-colors" placeholder="john@company.com" />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-400 mb-1.5 block">Project Type</label>
-                <select className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50 transition-colors">
-                  <option value="">Select service...</option>
-                  <option>Web Development</option>
-                  <option>Mobile App</option>
-                  <option>AI / Machine Learning</option>
-                  <option>SaaS Platform</option>
-                  <option>Cloud Solutions</option>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Project Type</label>
+                <select className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary/50 transition-colors">
+                  <option value="" className="bg-card">Select service...</option>
+                  <option className="bg-card">Web Development</option>
+                  <option className="bg-card">Mobile App</option>
+                  <option className="bg-card">AI / Machine Learning</option>
+                  <option className="bg-card">SaaS Platform</option>
+                  <option className="bg-card">Cloud Solutions</option>
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-400 mb-1.5 block">Message</label>
-                <textarea required rows={4} className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50 transition-colors resize-none" placeholder="Tell us about your project..." />
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Message</label>
+                <textarea required rows={4} className="w-full bg-card border border-border rounded-lg px-3 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary/50 transition-colors resize-none" placeholder="Tell us about your project..." />
               </div>
               <motion.button
                 type="submit"

@@ -17,11 +17,11 @@ const defaultPortfolio = [
 ];
 
 const categoryColors: Record<string, string> = {
-  SaaS: "text-blue-400",
-  AI: "text-purple-400",
-  "E-commerce": "text-orange-400",
-  Mobile: "text-cyan-400",
-  Design: "text-pink-400",
+  SaaS: "text-blue-600 dark:text-blue-400",
+  AI: "text-purple-600 dark:text-purple-400",
+  "E-commerce": "text-orange-600 dark:text-orange-400",
+  Mobile: "text-cyan-600 dark:text-cyan-400",
+  Design: "text-pink-600 dark:text-pink-400",
   "Web Development": "text-primary",
 };
 
@@ -38,7 +38,7 @@ export default function PortfolioPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden pt-20">
       <PublicNav />
 
       <section className="pt-32 pb-16 text-center px-6 relative">
@@ -46,8 +46,8 @@ export default function PortfolioPage() {
         <div className="relative z-10 max-w-3xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="text-primary text-sm font-semibold uppercase tracking-widest">Portfolio</span>
-            <h1 className="text-5xl md:text-6xl font-black text-white mt-4 mb-6">Our Work Speaks</h1>
-            <p className="text-gray-400 text-lg">500+ projects. Real results. Measurable impact.</p>
+            <h1 className="text-5xl md:text-6xl font-black text-foreground mt-4 mb-6">Our Work Speaks</h1>
+            <p className="text-muted-foreground text-lg">500+ projects. Real results. Measurable impact.</p>
           </motion.div>
         </div>
       </section>
@@ -61,8 +61,8 @@ export default function PortfolioPage() {
                 onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeCategory === cat
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-white/10 text-gray-400 hover:text-white hover:border-white/20"
+                    ? "bg-primary text-primary-foreground font-semibold"
+                    : "border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/50 bg-card"
                 }`}
               >
                 {cat}
@@ -74,7 +74,7 @@ export default function PortfolioPage() {
             placeholder="Search projects..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 w-full md:w-64"
+            className="bg-card border border-border rounded-xl px-4 py-2 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 w-full md:w-64"
           />
         </div>
 
@@ -95,7 +95,7 @@ export default function PortfolioPage() {
                 whileHover={{ y: -5 }}
                 className="glass rounded-2xl overflow-hidden group"
               >
-                <div className="h-44 bg-gradient-to-br from-primary/8 to-emerald-900/15 flex items-center justify-center relative">
+                <div className="h-44 bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center relative border-b border-border">
                   {item.isFeatured && (
                     <span className="absolute top-3 left-3 text-xs bg-primary/20 border border-primary/30 text-primary px-2.5 py-1 rounded-full font-medium">
                       Featured
@@ -107,15 +107,15 @@ export default function PortfolioPage() {
                   <span className={`text-xs font-bold uppercase tracking-wider ${categoryColors[item.category] ?? "text-primary"}`}>
                     {item.category}
                   </span>
-                  <h3 className="text-white font-bold text-lg mt-1 mb-1">{item.title}</h3>
-                  {item.client && <p className="text-gray-600 text-xs mb-2">Client: {item.client}</p>}
-                  <p className="text-gray-500 text-sm leading-relaxed mb-3 line-clamp-2">{item.shortDescription || item.description}</p>
+                  <h3 className="text-foreground font-bold text-lg mt-1 mb-1">{item.title}</h3>
+                  {item.client && <p className="text-muted-foreground/60 text-xs mb-2">Client: {item.client}</p>}
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-3 line-clamp-2">{item.shortDescription || item.description}</p>
                   {item.results && (
                     <p className="text-primary text-xs font-semibold mb-3">Result: {item.results}</p>
                   )}
                   <div className="flex flex-wrap gap-1.5">
                     {(item.technologies as string[]).slice(0, 4).map((t: string) => (
-                      <span key={t} className="text-xs px-2 py-0.5 rounded bg-white/5 text-gray-500">{t}</span>
+                      <span key={t} className="text-xs px-2 py-0.5 rounded bg-secondary text-muted-foreground border border-border">{t}</span>
                     ))}
                   </div>
                 </div>
@@ -125,7 +125,7 @@ export default function PortfolioPage() {
         </AnimatePresence>
 
         {filtered.length === 0 && (
-          <div className="text-center py-20 text-gray-600">No projects match your search.</div>
+          <div className="text-center py-20 text-muted-foreground">No projects match your search.</div>
         )}
       </section>
 

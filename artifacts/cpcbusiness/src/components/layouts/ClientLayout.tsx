@@ -102,26 +102,26 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </AnimatePresence>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-14 border-b border-border bg-card/50 backdrop-blur flex items-center px-5 justify-between shrink-0">
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground">
+        <header className="h-14 border-b border-slate-200 bg-white flex items-center px-5 justify-between shrink-0">
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-800">
             <Menu size={16} />
           </button>
           <div className="hidden md:block" />
           <div className="flex items-center gap-3">
             <button
               onClick={toggleTheme}
-              className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer transition-colors"
+              className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-100 cursor-pointer transition-colors"
               title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
               {isDark ? <Sun size={14} className="text-amber-500" /> : <Moon size={14} />}
             </button>
             <Link href="/client/notifications">
-              <span className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer transition-colors">
+              <span className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-100 cursor-pointer transition-colors">
                 <Bell size={14} />
               </span>
             </Link>
             <Link href="/client/messages">
-              <span className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer transition-colors">
+              <span className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-100 cursor-pointer transition-colors">
                 <MessageSquare size={14} />
               </span>
             </Link>
