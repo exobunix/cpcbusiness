@@ -67,6 +67,23 @@ export default function HomePage() {
   const headerSecondaryCtaText = settings?.headerSecondaryCtaText ?? "View Portfolio";
   const headerSecondaryCtaLink = settings?.headerSecondaryCtaLink ?? "/portfolio";
 
+  const dbStats = settings?.homeStats && Array.isArray(settings.homeStats) && settings.homeStats.length > 0
+    ? settings.homeStats
+    : stats;
+
+  const dbTechs = settings?.homeTechs && Array.isArray(settings.homeTechs) && settings.homeTechs.length > 0
+    ? settings.homeTechs
+    : techs;
+
+  const dbTestimonials = settings?.homeTestimonials && Array.isArray(settings.homeTestimonials) && settings.homeTestimonials.length > 0
+    ? settings.homeTestimonials
+    : testimonials;
+
+  const dbFaqs = settings?.homeFaqs && Array.isArray(settings.homeFaqs) && settings.homeFaqs.length > 0
+    ? settings.homeFaqs
+    : faqs;
+
+
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -152,7 +169,7 @@ export default function HomePage() {
       <section className="py-20 border-y border-white/5 bg-black/40">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((s, i) => (
+            {dbStats.map((s, i) => (
               <motion.div
                 key={s.label}
                 initial={{ opacity: 0, y: 20 }}
@@ -280,7 +297,7 @@ export default function HomePage() {
           <h2 className="text-4xl font-black text-white mt-3">Built with Best-in-Class Stack</h2>
         </motion.div>
         <div className="flex flex-wrap justify-center gap-3">
-          {techs.map((t, i) => (
+          {dbTechs.map((t, i) => (
             <motion.span
               key={t}
               initial={{ opacity: 0, scale: 0.8 }}
@@ -304,7 +321,7 @@ export default function HomePage() {
             <h2 className="text-4xl font-black text-white mt-3">What Our Clients Say</h2>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
+            {dbTestimonials.map((t, i) => (
               <motion.div
                 key={t.name}
                 initial={{ opacity: 0, y: 30 }}
@@ -336,7 +353,7 @@ export default function HomePage() {
           <h2 className="text-4xl font-black text-white mt-3">Common Questions</h2>
         </motion.div>
         <div className="space-y-4">
-          {faqs.map((f, i) => (
+          {dbFaqs.map((f, i) => (
             <motion.div
               key={f.q}
               initial={{ opacity: 0, y: 20 }}

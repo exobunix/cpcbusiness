@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Save, Globe, Eye, Menu, Phone, Mail, MapPin, Share2, Image as ImageIcon, Sparkles, Plus, Trash2, ArrowRight } from "lucide-react";
+import {
+  Save, Globe, Eye, Menu, Phone, Mail, MapPin, Share2, Sparkles, Plus, Trash2,
+  ListOrdered, Star, MessageCircle, Info, Award, UserPlus, FileText
+} from "lucide-react";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import { customFetch } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
@@ -10,11 +13,40 @@ type MenuLink = {
   href: string;
 };
 
+type StatItem = {
+  value: string;
+  label: string;
+};
+
+type TestimonialItem = {
+  name: string;
+  role: string;
+  text: string;
+  rating: number;
+};
+
+type FAQItem = {
+  q: string;
+  a: string;
+};
+
+type ValueItem = {
+  title: string;
+  desc: string;
+};
+
+type TeamItem = {
+  name: string;
+  role: string;
+  dept: string;
+};
+
 export default function SiteSettingsPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("branding");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
   const [form, setForm] = useState({
     logoText: "CPC",
     logoHighlight: "BUSINESS",
@@ -37,31 +69,48 @@ export default function SiteSettingsPage() {
     socialGithub: "https://github.com",
     socialInstagram: "https://instagram.com",
     menuLinks: [] as MenuLink[],
-    bannerImages: { heroBg: "", aboutBanner: "", servicesBanner: "" }
+    bannerImages: { heroBg: "", aboutBanner: "", servicesBanner: "" },
+    
+    // Expanded lists
+    homeStats: [] as StatItem[],
+    homeTechs: [] as string[],
+    homeTestimonials: [] as TestimonialItem[],
+    homeFaqs: [] as FAQItem[],
+    aboutTitle: "We Build Digital Empires",
+    aboutDescription: "Founded in 2014, CPCBusiness has grown from a 3-person boutique agency to a 50+ strong enterprise digital powerhouse trusted by companies in 30+ countries.",
+    aboutMission: "To empower ambitious companies with world-class digital solutions that drive measurable growth and lasting competitive advantage.",
+    aboutVision: "To be the most trusted enterprise technology partner in the world — where innovation meets execution and every build becomes a landmark.",
+    aboutValues: [] as ValueItem[],
+    aboutTeam: [] as TeamItem[]
   });
+
+  // Local helper state for adding items
+  const [newTech, setNewTech] = useState("");
 
   useEffect(() => {
     setLoading(true);
     customFetch<any>("/api/site-settings")
       .then((res) => {
         if (res) {
-          // If menuLinks or bannerImages come as string, parse them
-          let menuLinks = res.menuLinks || [];
-          if (typeof menuLinks === "string") {
-            try { menuLinks = JSON.parse(menuLinks); } catch (e) {}
-          }
-          let bannerImages = res.bannerImages || { heroBg: "", aboutBanner: "", servicesBanner: "" };
-          if (typeof bannerImages === "string") {
-            try { bannerImages = JSON.parse(bannerImages); } catch (e) {}
-          }
+          // Parse JSON fields safely helper
+          const parseJSON = (field: any, defaultVal: any) => {
+            if (!field) return defaultVal;
+            if (typeof field === "string") {
+              try { return JSON.parse(field); } catch (e) { return defaultVal; }
+            }
+            return field;
+          };
+
           setForm({
             ...res,
-            menuLinks,
-            bannerImages: {
-              heroBg: bannerImages.heroBg || "",
-              aboutBanner: bannerImages.aboutBanner || "",
-              servicesBanner: bannerImages.servicesBanner || ""
-            }
+            menuLinks: parseJSON(res.menuLinks, []),
+            bannerImages: parseJSON(res.bannerImages, { heroBg: "", aboutBanner: "", servicesBanner: "" }),
+            homeStats: parseJSON(res.homeStats, []),
+            homeTechs: parseJSON(res.homeTechs, []),
+            homeTestimonials: parseJSON(res.homeTestimonials, []),
+            homeFaqs: parseJSON(res.homeFaqs, []),
+            aboutValues: parseJSON(res.aboutValues, []),
+            aboutTeam: parseJSON(res.aboutTeam, [])
           });
         }
       })
@@ -99,29 +148,112 @@ export default function SiteSettingsPage() {
   };
 
   const addMenuLink = () => {
-    setForm({
-      ...form,
-      menuLinks: [...form.menuLinks, { label: "New Link", href: "/" }]
-    });
+    setForm({ ...form, menuLinks: [...form.menuLinks, { label: "New Link", href: "/" }] });
   };
-
   const removeMenuLink = (index: number) => {
     const next = [...form.menuLinks];
     next.splice(index, 1);
     setForm({ ...form, menuLinks: next });
   };
-
-  const updateMenuLink = (index: number, key: "label" | "href", val: string) => {
+  const updateMenuLink = (index: number, key: keyof MenuLink, val: string) => {
     const next = [...form.menuLinks];
     next[index] = { ...next[index], [key]: val };
     setForm({ ...form, menuLinks: next });
+  };
+
+  const addStat = () => {
+    setForm({ ...form, homeStats: [...form.homeStats, { value: "100%", label: "New Stat Metric" }] });
+  };
+  const removeStat = (index: number) => {
+    const next = [...form.homeStats];
+    next.splice(index, 1);
+    setForm({ ...form, homeStats: next });
+  };
+  const updateStat = (index: number, key: keyof StatItem, val: string) => {
+    const next = [...form.homeStats];
+    next[index] = { ...next[index], [key]: val };
+    setForm({ ...form, homeStats: next });
+  };
+
+  const addTech = () => {
+    if (!newTech.trim()) return;
+    if (form.homeTechs.includes(newTech.trim())) return;
+    setForm({ ...form, homeTechs: [...form.homeTechs, newTech.trim()] });
+    setNewTech("");
+  };
+  const removeTech = (tech: string) => {
+    setForm({ ...form, homeTechs: form.homeTechs.filter(t => t !== tech) });
+  };
+
+  const addTestimonial = () => {
+    setForm({
+      ...form,
+      homeTestimonials: [...form.homeTestimonials, { name: "Client Name", role: "CEO, Company", text: "Incredible work!", rating: 5 }]
+    });
+  };
+  const removeTestimonial = (index: number) => {
+    const next = [...form.homeTestimonials];
+    next.splice(index, 1);
+    setForm({ ...form, homeTestimonials: next });
+  };
+  const updateTestimonial = (index: number, key: keyof TestimonialItem, val: any) => {
+    const next = [...form.homeTestimonials];
+    next[index] = { ...next[index], [key]: val };
+    setForm({ ...form, homeTestimonials: next });
+  };
+
+  const addFaq = () => {
+    setForm({ ...form, homeFaqs: [...form.homeFaqs, { q: "Question?", a: "Answer text." }] });
+  };
+  const removeFaq = (index: number) => {
+    const next = [...form.homeFaqs];
+    next.splice(index, 1);
+    setForm({ ...form, homeFaqs: next });
+  };
+  const updateFaq = (index: number, key: keyof FAQItem, val: string) => {
+    const next = [...form.homeFaqs];
+    next[index] = { ...next[index], [key]: val };
+    setForm({ ...form, homeFaqs: next });
+  };
+
+  const addValue = () => {
+    setForm({ ...form, aboutValues: [...form.aboutValues, { title: "Value Title", desc: "Value description." }] });
+  };
+  const removeValue = (index: number) => {
+    const next = [...form.aboutValues];
+    next.splice(index, 1);
+    setForm({ ...form, aboutValues: next });
+  };
+  const updateValue = (index: number, key: keyof ValueItem, val: string) => {
+    const next = [...form.aboutValues];
+    next[index] = { ...next[index], [key]: val };
+    setForm({ ...form, aboutValues: next });
+  };
+
+  const addTeamMember = () => {
+    setForm({ ...form, aboutTeam: [...form.aboutTeam, { name: "Staff Name", role: "Developer", dept: "Engineering" }] });
+  };
+  const removeTeamMember = (index: number) => {
+    const next = [...form.aboutTeam];
+    next.splice(index, 1);
+    setForm({ ...form, aboutTeam: next });
+  };
+  const updateTeamMember = (index: number, key: keyof TeamItem, val: string) => {
+    const next = [...form.aboutTeam];
+    next[index] = { ...next[index], [key]: val };
+    setForm({ ...form, aboutTeam: next });
   };
 
   const tabs = [
     { id: "branding", label: "Branding & Logo", icon: Sparkles },
     { id: "hero", label: "Header & Hero", icon: Globe },
     { id: "menu", label: "Menu / Navigation", icon: Menu },
-    { id: "footer", label: "Footer", icon: Eye },
+    { id: "stats", label: "Stats & Techs", icon: ListOrdered },
+    { id: "testimonials", label: "Testimonials", icon: Star },
+    { id: "faqs", label: "FAQs", icon: MessageCircle },
+    { id: "about", label: "About Page", icon: Info },
+    { id: "team", label: "Team Members", icon: UserPlus },
+    { id: "footer", label: "Footer Settings", icon: Eye },
     { id: "contact", label: "Contact Info", icon: Phone },
     { id: "socials", label: "Social Media", icon: Share2 }
   ];
@@ -176,6 +308,7 @@ export default function SiteSettingsPage() {
             {/* Tab content area */}
             <div className="lg:col-span-3">
               <form onSubmit={handleSave} className="glass rounded-2xl p-6 space-y-6">
+                
                 {activeTab === "branding" && (
                   <div className="space-y-4">
                     <h3 className="text-lg font-bold text-white mb-4">Website Logo & Branding</h3>
@@ -307,7 +440,6 @@ export default function SiteSettingsPage() {
                         <Plus size={12} /> Add Link
                       </button>
                     </div>
-
                     <div className="space-y-3">
                       {form.menuLinks.map((link, index) => (
                         <div key={index} className="flex items-center gap-3 bg-black/30 p-3 rounded-xl border border-white/5">
@@ -335,6 +467,342 @@ export default function SiteSettingsPage() {
                             className="mt-4 p-2 text-gray-600 hover:text-red-400 transition-colors"
                           >
                             <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "stats" && (
+                  <div className="space-y-6">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-bold text-white">Homepage Statistics Counters</h3>
+                        <button
+                          type="button"
+                          onClick={addStat}
+                          className="flex items-center gap-1 bg-white/5 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                        >
+                          <Plus size={12} /> Add Stat
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {form.homeStats.map((stat, index) => (
+                          <div key={index} className="bg-black/30 p-3 rounded-xl border border-white/5 flex gap-2 items-start">
+                            <div className="flex-1 space-y-2">
+                              <div>
+                                <label className="text-[10px] text-gray-500 block mb-0.5">Value (e.g. 500+)</label>
+                                <input
+                                  value={stat.value}
+                                  onChange={(e) => updateStat(index, "value", e.target.value)}
+                                  className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1 text-white text-sm focus:outline-none focus:border-primary/50"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[10px] text-gray-500 block mb-0.5">Label (e.g. Projects Delivered)</label>
+                                <input
+                                  value={stat.label}
+                                  onChange={(e) => updateStat(index, "label", e.target.value)}
+                                  className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1 text-white text-sm focus:outline-none focus:border-primary/50"
+                                />
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeStat(index)}
+                              className="text-gray-600 hover:text-red-400 mt-5"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-white/5 pt-5">
+                      <h3 className="text-lg font-bold text-white mb-2">Technologies & Tech Stack Tags</h3>
+                      <div className="flex gap-2 mb-4">
+                        <input
+                          value={newTech}
+                          onChange={(e) => setNewTech(e.target.value)}
+                          placeholder="e.g. React"
+                          className="bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-primary/50 flex-1"
+                        />
+                        <button
+                          type="button"
+                          onClick={addTech}
+                          className="bg-primary text-primary-foreground text-xs font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                        >
+                          Add Tag
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {form.homeTechs.map((tech) => (
+                          <div key={tech} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-300">
+                            {tech}
+                            <button
+                              type="button"
+                              onClick={() => removeTech(tech)}
+                              className="text-gray-500 hover:text-red-400"
+                            >
+                              <Trash2 size={10} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "testimonials" && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-white">Homepage Client Testimonials</h3>
+                      <button
+                        type="button"
+                        onClick={addTestimonial}
+                        className="flex items-center gap-1 bg-white/5 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                      >
+                        <Plus size={12} /> Add Testimonial
+                      </button>
+                    </div>
+                    <div className="space-y-4">
+                      {form.homeTestimonials.map((test, index) => (
+                        <div key={index} className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-3">
+                          <div className="grid grid-cols-3 gap-3">
+                            <div>
+                              <label className="text-[10px] text-gray-500 block mb-0.5">Client Name</label>
+                              <input
+                                value={test.name}
+                                onChange={(e) => updateTestimonial(index, "name", e.target.value)}
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-gray-500 block mb-0.5">Role / Company</label>
+                              <input
+                                value={test.role}
+                                onChange={(e) => updateTestimonial(index, "role", e.target.value)}
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-gray-500 block mb-0.5">Rating (1 to 5 Stars)</label>
+                              <select
+                                value={test.rating}
+                                onChange={(e) => updateTestimonial(index, "rating", parseInt(e.target.value))}
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm"
+                              >
+                                {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} Stars</option>)}
+                              </select>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-gray-500 block mb-0.5">Testimonial Quote</label>
+                            <textarea
+                              value={test.text}
+                              onChange={(e) => updateTestimonial(index, "text", e.target.value)}
+                              rows={2}
+                              className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm resize-none"
+                            />
+                          </div>
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => removeTestimonial(index)}
+                              className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-400"
+                            >
+                              <Trash2 size={12} /> Remove
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "faqs" && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-white">Homepage FAQ List</h3>
+                      <button
+                        type="button"
+                        onClick={addFaq}
+                        className="flex items-center gap-1 bg-white/5 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                      >
+                        <Plus size={12} /> Add FAQ
+                      </button>
+                    </div>
+                    <div className="space-y-4">
+                      {form.homeFaqs.map((faq, index) => (
+                        <div key={index} className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-3">
+                          <div>
+                            <label className="text-[10px] text-gray-500 block mb-0.5">Question</label>
+                            <input
+                              value={faq.q}
+                              onChange={(e) => updateFaq(index, "q", e.target.value)}
+                              className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-gray-500 block mb-0.5">Answer</label>
+                            <textarea
+                              value={faq.a}
+                              onChange={(e) => updateFaq(index, "a", e.target.value)}
+                              rows={2}
+                              className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm resize-none"
+                            />
+                          </div>
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => removeFaq(index)}
+                              className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-400"
+                            >
+                              <Trash2 size={12} /> Remove FAQ
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "about" && (
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-bold text-white">About Us Main Copy</h3>
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1.5 block">About Section Title / Heading</label>
+                        <input
+                          value={form.aboutTitle}
+                          onChange={(e) => setForm({ ...form, aboutTitle: e.target.value })}
+                          className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1.5 block">About Description Paragraph</label>
+                        <textarea
+                          value={form.aboutDescription}
+                          onChange={(e) => setForm({ ...form, aboutDescription: e.target.value })}
+                          rows={4}
+                          className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50 resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/5 pt-5">
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1.5 block">Our Mission Statement</label>
+                        <textarea
+                          value={form.aboutMission}
+                          onChange={(e) => setForm({ ...form, aboutMission: e.target.value })}
+                          rows={3}
+                          className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm resize-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1.5 block">Our Vision Statement</label>
+                        <textarea
+                          value={form.aboutVision}
+                          onChange={(e) => setForm({ ...form, aboutVision: e.target.value })}
+                          rows={3}
+                          className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="border-t border-white/5 pt-5 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-bold text-white">Company Values</h3>
+                        <button
+                          type="button"
+                          onClick={addValue}
+                          className="flex items-center gap-1 bg-white/5 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                        >
+                          <Plus size={12} /> Add Value
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        {form.aboutValues.map((val, index) => (
+                          <div key={index} className="bg-black/30 p-3 rounded-xl border border-white/5 space-y-2">
+                            <div className="flex items-center gap-3">
+                              <input
+                                value={val.title}
+                                onChange={(e) => updateValue(index, "title", e.target.value)}
+                                placeholder="Value Title"
+                                className="flex-1 bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-white text-sm"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeValue(index)}
+                                className="text-gray-600 hover:text-red-400"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                            <textarea
+                              value={val.desc}
+                              onChange={(e) => updateValue(index, "desc", e.target.value)}
+                              placeholder="Value explanation..."
+                              rows={2}
+                              className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-white text-sm resize-none"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "team" && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-white">Leadership & Team Members</h3>
+                      <button
+                        type="button"
+                        onClick={addTeamMember}
+                        className="flex items-center gap-1 bg-white/5 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                      >
+                        <Plus size={12} /> Add Member
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {form.aboutTeam.map((member, index) => (
+                        <div key={index} className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-3 relative group">
+                          <div>
+                            <label className="text-[10px] text-gray-500 block mb-0.5">Name</label>
+                            <input
+                              value={member.name}
+                              onChange={(e) => updateTeamMember(index, "name", e.target.value)}
+                              className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1 text-white text-sm"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-[10px] text-gray-500 block mb-0.5">Role</label>
+                              <input
+                                value={member.role}
+                                onChange={(e) => updateTeamMember(index, "role", e.target.value)}
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1 text-white text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-gray-500 block mb-0.5">Department</label>
+                              <input
+                                value={member.dept}
+                                onChange={(e) => updateTeamMember(index, "dept", e.target.value)}
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-2.5 py-1 text-white text-sm"
+                              />
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeTeamMember(index)}
+                            className="absolute top-2 right-2 text-gray-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       ))}
@@ -445,6 +913,7 @@ export default function SiteSettingsPage() {
                     </div>
                   </div>
                 )}
+
               </form>
             </div>
           </div>
