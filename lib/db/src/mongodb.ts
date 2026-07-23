@@ -10,6 +10,7 @@ export async function connectMongoDB() {
   try {
     const conn = await mongoose.connect(MONGODB_URI, {
       dbName: "cpcbusiness",
+      serverSelectionTimeoutMS: 2000, // Fail fast (2s) instead of hanging (30s) if blocked by firewall/IP whitelist
     });
     console.log(`[MongoDB] Connected successfully to Atlas cluster database: cpcbusiness`);
     return conn.connection;
