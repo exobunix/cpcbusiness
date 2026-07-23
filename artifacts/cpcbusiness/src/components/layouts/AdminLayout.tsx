@@ -140,7 +140,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-14 border-b border-slate-200 bg-white flex items-center px-5 justify-between shrink-0">
+        <header className="h-20 border-b border-slate-200 bg-white flex items-center px-5 justify-between shrink-0">
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-800"
