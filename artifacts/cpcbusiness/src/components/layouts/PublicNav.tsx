@@ -39,11 +39,11 @@ export default function PublicNav() {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className={`fixed top-0 w-full z-50 transition-all duration-300 bg-white border-b border-slate-200/80 shadow-sm`}
     >
-      <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center gap-2 cursor-pointer select-none">
             {/* The brand logo with black text is always rendered on light navbar background */}
-            <img src="/logo.png" alt="CPCBusiness" className="h-20 w-auto object-contain" />
+            <img src={settings?.logoUrl || "/logo.png"} alt="CPCBusiness" className="h-14 w-auto object-contain" />
           </div>
         </Link>
 

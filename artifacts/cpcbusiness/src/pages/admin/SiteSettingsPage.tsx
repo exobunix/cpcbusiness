@@ -332,14 +332,50 @@ export default function SiteSettingsPage() {
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1.5 block">Logo Icon Image URL (Optional)</label>
-                      <input
-                        value={form.logoUrl || ""}
-                        onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
-                        placeholder="https://..."
-                        className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50"
-                      />
+                     <div>
+                      <label className="text-xs text-gray-500 mb-1.5 block">Logo Icon Image (Upload to ImageKit)</label>
+                      <div className="flex gap-3">
+                        <input
+                          value={form.logoUrl || ""}
+                          onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
+                          placeholder="https://ik.imagekit.io/..."
+                          className="flex-1 bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50"
+                        />
+                        <label className="bg-primary text-primary-foreground text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer hover:bg-primary/90 transition-colors flex items-center justify-center min-w-[100px] select-none text-center">
+                          Upload
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              
+                              const reader = new FileReader();
+                              reader.onload = async () => {
+                                try {
+                                  toast({ title: "Uploading...", description: "Please wait while we upload the logo." });
+                                  const base64 = (reader.result as string).split(",")[1];
+                                  const res = await customFetch<any>("/api/imagekit/upload", {
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                      file: base64,
+                                      fileName: file.name
+                                    })
+                                  });
+                                  if (res && res.url) {
+                                    setForm({ ...form, logoUrl: res.url });
+                                    toast({ title: "Upload Success", description: "Logo uploaded to ImageKit." });
+                                  }
+                                } catch (err: any) {
+                                  toast({ variant: "destructive", title: "Upload Failed", description: err.message || "Failed to upload logo." });
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }}
+                          />
+                        </label>
+                      </div>
                     </div>
                     <div className="p-4 bg-white/5 rounded-xl border border-white/10 mt-6">
                       <label className="text-xs text-gray-500 uppercase tracking-widest block mb-2">Live Logo Preview</label>

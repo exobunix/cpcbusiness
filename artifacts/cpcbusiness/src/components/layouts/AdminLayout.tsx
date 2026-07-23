@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { clearToken } from "@/lib/auth";
 import { useTheme } from "@/hooks/useTheme";
+import { customFetch } from "@workspace/api-client-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
@@ -31,19 +32,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location, setLocation] = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    customFetch<any>("/api/site-settings")
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
 
   const handleLogout = () => {
     clearToken();
     setLocation("/login");
   };
 
+  const logoSrc = settings?.logoUrl || "/logo.png";
+  const isDefaultLogo = !settings?.logoUrl || settings?.logoUrl === "/logo.png";
+
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className={`h-20 flex items-center justify-center bg-white border-b border-slate-200 shrink-0 ${collapsed ? "px-1" : "px-4"}`}>
+      <div className={`h-20 flex items-center justify-center bg-sidebar border-b border-sidebar-border shrink-0 ${collapsed ? "px-1" : "px-4"}`}>
         {collapsed ? (
-          <img src="/logo.png" alt="C" className="h-10 w-auto object-contain" />
+          <img src={logoSrc} alt="C" className={`h-10 w-auto object-contain ${isDefaultLogo ? "brightness-0 invert" : ""}`} />
         ) : (
-          <img src="/logo.png" alt="CPCBusiness" className="h-15 w-auto object-contain" />
+          <img src={logoSrc} alt="CPCBusiness" className={`h-15 w-auto object-contain ${isDefaultLogo ? "brightness-0 invert" : ""}`} />
         )}
       </div>
 
