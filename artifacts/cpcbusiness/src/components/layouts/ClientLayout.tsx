@@ -3,9 +3,10 @@ import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Briefcase, DollarSign, Ticket,
-  MessageSquare, Bell, LogOut, Menu, User
+  MessageSquare, Bell, LogOut, Menu, Sun, Moon
 } from "lucide-react";
 import { clearToken, getUser } from "@/lib/auth";
+import { useTheme } from "@/hooks/useTheme";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/client" },
@@ -19,6 +20,7 @@ const navItems = [
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location, setLocation] = useLocation();
+  const { isDark, toggleTheme } = useTheme();
   const user = getUser();
   const initials = user?.name ? user.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "CL";
 
@@ -29,24 +31,24 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className="h-16 flex items-center px-5 border-b border-white/5 shrink-0">
+      <div className="h-16 flex items-center px-5 border-b border-sidebar-border shrink-0 justify-between">
         <Link href="/">
-          <span className="text-lg font-black tracking-tighter text-white cursor-pointer">
-            CPC<span className="text-primary">BUSINESS</span>
-            <span className="ml-2 text-xs font-medium text-primary/70 border border-primary/20 px-1.5 py-0.5 rounded-full">Portal</span>
-          </span>
+          <div className="flex items-center gap-2 cursor-pointer select-none">
+            <img src="/logo.png" alt="CPCBusiness" className="h-8 w-auto object-contain brightness-0 invert" />
+            <span className="text-[10px] font-bold text-primary/70 border border-primary/20 px-1 py-0.2 rounded-full shrink-0">Portal</span>
+          </div>
         </Link>
       </div>
 
       {/* User info */}
-      <div className="px-4 py-3 border-b border-white/5 shrink-0">
+      <div className="px-4 py-3 border-b border-sidebar-border shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary text-xs font-bold shrink-0">
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="text-white text-xs font-semibold truncate">{user?.name ?? "Client"}</p>
-            <p className="text-gray-600 text-xs truncate">{user?.email ?? ""}</p>
+            <p className="text-sidebar-foreground text-xs font-semibold truncate">{user?.name ?? "Client"}</p>
+            <p className="text-sidebar-foreground/50 text-[10px] truncate">{user?.email ?? ""}</p>
           </div>
         </div>
       </div>
@@ -60,7 +62,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 whileHover={{ x: 2 }}
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 cursor-pointer transition-all ${
-                  active ? "bg-primary/15 text-primary border border-primary/20" : "text-gray-500 hover:text-white hover:bg-white/5"
+                  active
+                    ? "bg-primary/15 text-primary border border-primary/20"
+                    : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                 }`}
               >
                 <Icon size={16} />
@@ -71,8 +75,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           );
         })}
       </nav>
-      <div className="p-3 border-t border-white/5 shrink-0">
-        <button onClick={handleLogout} className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all">
+      <div className="p-3 border-t border-sidebar-border shrink-0">
+        <button onClick={handleLogout} className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sidebar-foreground/60 hover:text-red-400 hover:bg-red-500/10 transition-all">
           <LogOut size={16} />
           <span className="text-sm font-medium">Sign Out</span>
         </button>
@@ -82,7 +86,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      <aside className="hidden md:flex flex-col w-56 border-r border-white/5 bg-[#050505] shrink-0">
+      <aside className="hidden md:flex flex-col w-56 border-r border-sidebar-border bg-sidebar shrink-0">
         <SidebarContent />
       </aside>
 
@@ -90,7 +94,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         {mobileOpen && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMobileOpen(false)} className="md:hidden fixed inset-0 bg-black/70 z-40" />
-            <motion.aside initial={{ x: -220 }} animate={{ x: 0 }} exit={{ x: -220 }} transition={{ duration: 0.25 }} className="md:hidden fixed left-0 top-0 bottom-0 w-[220px] border-r border-white/5 bg-[#050505] z-50">
+            <motion.aside initial={{ x: -220 }} animate={{ x: 0 }} exit={{ x: -220 }} transition={{ duration: 0.25 }} className="md:hidden fixed left-0 top-0 bottom-0 w-[220px] border-r border-sidebar-border bg-sidebar z-50">
               <SidebarContent />
             </motion.aside>
           </>
@@ -98,19 +102,26 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </AnimatePresence>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-14 border-b border-white/5 bg-black/50 backdrop-blur flex items-center px-5 justify-between shrink-0">
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden w-8 h-8 flex items-center justify-center text-gray-400">
+        <header className="h-14 border-b border-border bg-card/50 backdrop-blur flex items-center px-5 justify-between shrink-0">
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground">
             <Menu size={16} />
           </button>
           <div className="hidden md:block" />
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer transition-colors"
+              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDark ? <Sun size={14} className="text-amber-500" /> : <Moon size={14} />}
+            </button>
             <Link href="/client/notifications">
-              <span className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-500 hover:text-white cursor-pointer transition-colors">
+              <span className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer transition-colors">
                 <Bell size={14} />
               </span>
             </Link>
             <Link href="/client/messages">
-              <span className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-500 hover:text-white cursor-pointer transition-colors">
+              <span className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer transition-colors">
                 <MessageSquare size={14} />
               </span>
             </Link>

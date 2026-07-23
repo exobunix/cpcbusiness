@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Users, Briefcase, CheckSquare, DollarSign, Ticket,
   Settings, Globe, Image, Bot, MessageSquare, Bell, LogOut,
-  TrendingUp, UserCheck, ChevronLeft, ChevronRight, Menu, X
+  TrendingUp, UserCheck, ChevronLeft, ChevronRight, Menu, X, Sun, Moon
 } from "lucide-react";
 import { clearToken } from "@/lib/auth";
+import { useTheme } from "@/hooks/useTheme";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
@@ -25,11 +26,11 @@ const navItems = [
   { icon: Settings, label: "Site Settings", href: "/admin/site-settings" },
 ];
 
-
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location, setLocation] = useLocation();
+  const { isDark, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     clearToken();
@@ -38,13 +39,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className={`h-16 flex items-center border-b border-white/5 shrink-0 ${collapsed ? "justify-center px-0" : "px-5"}`}>
+      <div className={`h-16 flex items-center border-b border-sidebar-border shrink-0 ${collapsed ? "justify-center px-0" : "px-5"}`}>
         {collapsed ? (
-          <span className="text-primary font-black text-lg">C</span>
+          <img src="/logo.png" alt="C" className="h-8 w-auto object-contain brightness-0 invert" />
         ) : (
-          <span className="text-lg font-black tracking-tighter text-white">
-            CPC<span className="text-primary">BUSINESS</span>
-          </span>
+          <img src="/logo.png" alt="CPCBusiness" className="h-10 w-auto object-contain brightness-0 invert" />
         )}
       </div>
 
@@ -60,10 +59,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 cursor-pointer transition-all group ${
                     active
                       ? "bg-primary/15 text-primary border border-primary/20"
-                      : "text-gray-500 hover:text-white hover:bg-white/5"
+                      : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                   } ${collapsed ? "justify-center" : ""}`}
                 >
-                  <Icon size={16} className={active ? "text-primary" : "text-gray-500 group-hover:text-white"} />
+                  <Icon size={16} className={active ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-sidebar-foreground"} />
                   {!collapsed && <span className="text-sm font-medium">{label}</span>}
                   {active && !collapsed && (
                     <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
@@ -75,10 +74,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </nav>
 
-      <div className={`border-t border-white/5 p-3 space-y-1 shrink-0`}>
+      <div className={`border-t border-sidebar-border p-3 space-y-1 shrink-0`}>
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all ${collapsed ? "justify-center" : ""}`}
+          className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sidebar-foreground/60 hover:text-red-400 hover:bg-red-500/10 transition-all ${collapsed ? "justify-center" : ""}`}
         >
           <LogOut size={16} />
           {!collapsed && <span className="text-sm font-medium">Logout</span>}
@@ -93,12 +92,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <motion.aside
         animate={{ width: collapsed ? 64 : 220 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
-        className="hidden md:flex flex-col border-r border-white/5 bg-[#050505] shrink-0 relative z-10"
+        className="hidden md:flex flex-col border-r border-sidebar-border bg-sidebar shrink-0 relative z-10"
       >
         <SidebarContent />
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-20 w-6 h-6 rounded-full border border-white/10 bg-background flex items-center justify-center text-gray-500 hover:text-white hover:border-primary transition-colors z-20"
+          className="absolute -right-3 top-20 w-6 h-6 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary transition-colors z-20"
         >
           {collapsed ? <ChevronRight size={10} /> : <ChevronLeft size={10} />}
         </button>
@@ -120,7 +119,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               animate={{ x: 0 }}
               exit={{ x: -220 }}
               transition={{ duration: 0.25 }}
-              className="md:hidden fixed left-0 top-0 bottom-0 w-[220px] border-r border-white/5 bg-[#050505] z-50"
+              className="md:hidden fixed left-0 top-0 bottom-0 w-[220px] border-r border-sidebar-border bg-sidebar z-50"
             >
               <SidebarContent />
             </motion.aside>
@@ -130,22 +129,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-14 border-b border-white/5 bg-black/50 backdrop-blur flex items-center px-5 justify-between shrink-0">
+        <header className="h-14 border-b border-border bg-card/50 backdrop-blur flex items-center px-5 justify-between shrink-0">
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white"
+            className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground"
           >
             <Menu size={16} />
           </button>
           <div className="hidden md:block" />
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer transition-colors"
+              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDark ? <Sun size={14} className="text-amber-500" /> : <Moon size={14} />}
+            </button>
             <Link href="/admin/messages">
-              <span className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/20 cursor-pointer transition-colors">
+              <span className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer transition-colors">
                 <MessageSquare size={14} />
               </span>
             </Link>
             <Link href="/admin">
-              <span className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/20 cursor-pointer transition-colors">
+              <span className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50 cursor-pointer transition-colors">
                 <Bell size={14} />
               </span>
             </Link>
