@@ -377,12 +377,18 @@ export default function SiteSettingsPage() {
                         </label>
                       </div>
                     </div>
-                    <div className="p-4 bg-white/5 rounded-xl border border-white/10 mt-6">
+                     <div className="p-4 bg-white/5 rounded-xl border border-white/10 mt-6">
                       <label className="text-xs text-gray-500 uppercase tracking-widest block mb-2">Live Logo Preview</label>
-                      <div className="text-xl font-black tracking-tighter text-white">
-                        {form.logoText}
-                        <span className="text-primary">{form.logoHighlight}</span>
-                      </div>
+                      {form.logoUrl ? (
+                        <div className="bg-slate-900 p-4 rounded-lg flex items-center justify-center">
+                          <img src={form.logoUrl} alt="Logo Preview" className="h-16 w-auto object-contain" />
+                        </div>
+                      ) : (
+                        <div className="text-xl font-black tracking-tighter text-white">
+                          {form.logoText}
+                          <span className="text-primary">{form.logoHighlight}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
