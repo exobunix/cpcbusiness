@@ -191,7 +191,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {(services?.slice(0, 6) ?? [
+          {(Array.isArray(services) ? services.slice(0, 6) : [
             { id: 1, title: "Web Development", shortDescription: "Enterprise web applications built with modern stack", category: "Development" },
             { id: 2, title: "Mobile App Development", shortDescription: "Native iOS & Android apps that scale", category: "Mobile" },
             { id: 3, title: "AI Development", shortDescription: "Machine learning and AI-powered solutions", category: "AI" },
@@ -232,7 +232,7 @@ export default function HomePage() {
       </section>
 
       {/* PORTFOLIO PREVIEW */}
-      {portfolio && portfolio.length > 0 && (
+      {Array.isArray(portfolio) && portfolio.length > 0 && (
         <section className="py-16 md:py-20 bg-card/20 border-y border-border">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-12">
@@ -240,7 +240,7 @@ export default function HomePage() {
               <h2 className="text-3xl md:text-5xl font-black text-foreground mt-2">Featured Projects</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {portfolio.filter((p: any) => p.isFeatured).slice(0, 3).map((item: any) => (
+              {portfolio.filter((p: any) => p && p.isFeatured).slice(0, 3).map((item: any) => (
                 <motion.div
                   key={item.id}
                   whileHover={{ y: -4 }}
@@ -254,7 +254,7 @@ export default function HomePage() {
                     <h3 className="text-foreground font-bold mt-1">{item.title}</h3>
                     <p className="text-muted-foreground text-sm mt-2 line-clamp-2">{item.shortDescription || item.description}</p>
                     <div className="mt-3 flex flex-wrap gap-1">
-                      {(item.technologies as string[]).slice(0, 3).map((t: string) => (
+                      {Array.isArray(item.technologies) && item.technologies.slice(0, 3).map((t: string) => (
                         <span key={t} className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary/80">{t}</span>
                       ))}
                     </div>
