@@ -60,7 +60,7 @@ export default function HomePage() {
   }, []);
 
   const { scrollYProgress } = useScroll({ target: heroRef });
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   
   const [settings, setSettings] = useState<any>(null);
 
@@ -100,9 +100,9 @@ export default function HomePage() {
       <PublicNav />
 
       {/* HERO */}
-      <section ref={heroRef} className="relative overflow-hidden pt-36 pb-16">
+      <section ref={heroRef} className="relative overflow-hidden pt-32 pb-12 md:pt-40 md:pb-20">
         {/* animated bg */}
-        <div className="absolute inset-0 aurora-bg" />
+        <div className="absolute inset-0 aurora-bg animate-pulse duration-[8000ms]" />
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
@@ -112,54 +112,54 @@ export default function HomePage() {
 
         <motion.div style={{ y }} className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-8">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-6 md:mb-8">
               <Zap size={12} /> {headerAnnouncement}
             </span>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.9] mb-8 text-foreground"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] mb-6 md:mb-8 text-foreground"
           >
             {headerTitle}<br />
             <span className="gradient-text">{headerSubtitle}</span>
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-12"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8 md:mb-12"
           >
             {headerDescription}
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href={headerCtaLink}>
               <motion.span
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold text-sm cursor-pointer gold-glow hover:bg-primary/90 transition-all"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-3.5 rounded-full font-bold text-sm cursor-pointer gold-glow hover:bg-primary/90 transition-all"
               >
                 {headerCtaText} <ArrowRight size={16} />
               </motion.span>
             </Link>
             <Link href={headerSecondaryCtaLink}>
               <motion.span
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="flex items-center gap-2 border border-border text-foreground px-8 py-4 rounded-full font-bold text-sm cursor-pointer hover:bg-secondary/50 transition-all bg-card"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 border border-border text-foreground px-8 py-3.5 rounded-full font-bold text-sm cursor-pointer hover:bg-secondary/50 transition-all bg-card"
               >
                 {headerSecondaryCtaText}
               </motion.span>
@@ -169,38 +169,26 @@ export default function HomePage() {
       </section>
 
       {/* STATS */}
-      <section className="py-20 border-y border-border bg-card/40">
+      <section className="py-12 border-y border-border bg-card/40">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {dbStats.map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-4xl md:text-5xl font-black gradient-text mb-2">{s.value}</div>
-                <div className="text-muted-foreground text-sm">{s.label}</div>
-              </motion.div>
+              <div key={s.label} className="text-center">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-black gradient-text mb-1">{s.value}</div>
+                <div className="text-muted-foreground text-xs sm:text-sm">{s.label}</div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* SERVICES */}
-      <section className="py-24 max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
+      <section className="py-16 md:py-20 max-w-7xl mx-auto px-6">
+        <div className="text-center mb-12">
           <span className="text-primary text-sm font-semibold uppercase tracking-widest">What We Build</span>
-          <h2 className="text-4xl md:text-5xl font-black text-foreground mt-3">Enterprise-Grade Services</h2>
-          <p className="text-muted-foreground mt-4 max-w-xl mx-auto">From cutting-edge AI to bulletproof infrastructure, we deliver complete digital transformation.</p>
-        </motion.div>
+          <h2 className="text-3xl md:text-5xl font-black text-foreground mt-2">Enterprise-Grade Services</h2>
+          <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm sm:text-base">From cutting-edge AI to bulletproof infrastructure, we deliver complete digital transformation.</p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {(services?.slice(0, 6) ?? [
@@ -210,16 +198,12 @@ export default function HomePage() {
             { id: 4, title: "SaaS Development", shortDescription: "Full-featured SaaS platforms from day one", category: "SaaS" },
             { id: 5, title: "Cloud Solutions", shortDescription: "AWS, GCP, Azure architecture and DevOps", category: "Cloud" },
             { id: 6, title: "UI/UX Design", shortDescription: "World-class design systems and user experiences", category: "Design" },
-          ]).map((s: any, i) => {
+          ]).map((s: any) => {
             const Icon = serviceIcons[s.title] ?? Code2;
             return (
               <motion.div
                 key={s.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07 }}
-                whileHover={{ y: -4, scale: 1.01 }}
+                whileHover={{ y: -3, scale: 1.01 }}
                 className="glass rounded-2xl p-6 group cursor-pointer hover:border-primary/20 transition-all"
               >
                 <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
@@ -238,7 +222,7 @@ export default function HomePage() {
         <div className="text-center mt-10">
           <Link href="/services">
             <motion.span
-              whileHover={{ scale: 1.03 }}
+              whileHover={{ scale: 1.02 }}
               className="inline-flex items-center gap-2 border border-border text-foreground px-7 py-3 rounded-full text-sm font-semibold cursor-pointer hover:bg-secondary/50 transition-all bg-card"
             >
               View All Services <ArrowRight size={14} />
@@ -249,24 +233,20 @@ export default function HomePage() {
 
       {/* PORTFOLIO PREVIEW */}
       {portfolio && portfolio.length > 0 && (
-        <section className="py-24 bg-card/20 border-y border-border">
+        <section className="py-16 md:py-20 bg-card/20 border-y border-border">
           <div className="max-w-7xl mx-auto px-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+            <div className="text-center mb-12">
               <span className="text-primary text-sm font-semibold uppercase tracking-widest">Our Work</span>
-              <h2 className="text-4xl md:text-5xl font-black text-foreground mt-3">Featured Projects</h2>
-            </motion.div>
+              <h2 className="text-3xl md:text-5xl font-black text-foreground mt-2">Featured Projects</h2>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {portfolio.filter((p: any) => p.isFeatured).slice(0, 3).map((item: any, i: number) => (
+              {portfolio.filter((p: any) => p.isFeatured).slice(0, 3).map((item: any) => (
                 <motion.div
                   key={item.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  whileHover={{ y: -5 }}
+                  whileHover={{ y: -4 }}
                   className="glass rounded-2xl overflow-hidden group"
                 >
-                  <div className="h-48 bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center border-b border-border">
+                  <div className="h-44 bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center border-b border-border">
                     <Globe size={48} className="text-primary/30 group-hover:text-primary/50 transition-colors" />
                   </div>
                   <div className="p-5">
@@ -284,7 +264,7 @@ export default function HomePage() {
             </div>
             <div className="text-center mt-10">
               <Link href="/portfolio">
-                <motion.span whileHover={{ scale: 1.03 }} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full text-sm font-bold cursor-pointer hover:bg-primary/90 transition-all">
+                <motion.span whileHover={{ scale: 1.02 }} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full text-sm font-bold cursor-pointer hover:bg-primary/90 transition-all">
                   View All Projects <ArrowRight size={14} />
                 </motion.span>
               </Link>
@@ -294,20 +274,16 @@ export default function HomePage() {
       )}
 
       {/* TECH STACK */}
-      <section className="py-24 max-w-7xl mx-auto px-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+      <section className="py-16 md:py-20 max-w-7xl mx-auto px-6">
+        <div className="text-center mb-12">
           <span className="text-primary text-sm font-semibold uppercase tracking-widest">Technology</span>
-          <h2 className="text-4xl font-black text-foreground mt-3">Built with Best-in-Class Stack</h2>
-        </motion.div>
+          <h2 className="text-3xl md:text-5xl font-black text-foreground mt-2">Built with Best-in-Class Stack</h2>
+        </div>
         <div className="flex flex-wrap justify-center gap-3">
-          {dbTechs.map((t, i) => (
+          {dbTechs.map((t) => (
             <motion.span
               key={t}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.04 }}
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ scale: 1.03, y: -1 }}
               className="px-5 py-2.5 rounded-xl border border-border bg-card text-muted-foreground text-sm font-medium hover:border-primary/30 hover:text-primary transition-all cursor-default"
             >
               {t}
@@ -317,20 +293,16 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="py-24 bg-card/20 border-y border-border">
+      <section className="py-16 md:py-20 bg-card/20 border-y border-border">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+          <div className="text-center mb-12">
             <span className="text-primary text-sm font-semibold uppercase tracking-widest">Testimonials</span>
-            <h2 className="text-4xl font-black text-foreground mt-3">What Our Clients Say</h2>
-          </motion.div>
+            <h2 className="text-3xl md:text-5xl font-black text-foreground mt-2">What Our Clients Say</h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {dbTestimonials.map((t, i) => (
-              <motion.div
+            {dbTestimonials.map((t) => (
+              <div
                 key={t.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
                 className="glass rounded-2xl p-7"
               >
                 <div className="flex mb-4">
@@ -343,26 +315,22 @@ export default function HomePage() {
                   <div className="text-foreground font-bold text-sm">{t.name}</div>
                   <div className="text-muted-foreground text-xs mt-0.5">{t.role}</div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="py-24 max-w-3xl mx-auto px-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+      <section className="py-16 md:py-20 max-w-3xl mx-auto px-6">
+        <div className="text-center mb-12">
           <span className="text-primary text-sm font-semibold uppercase tracking-widest">FAQ</span>
-          <h2 className="text-4xl font-black text-foreground mt-3">Common Questions</h2>
-        </motion.div>
+          <h2 className="text-3xl md:text-5xl font-black text-foreground mt-2">Common Questions</h2>
+        </div>
         <div className="space-y-4">
-          {dbFaqs.map((f, i) => (
-            <motion.div
+          {dbFaqs.map((f) => (
+            <div
               key={f.q}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
               className="glass rounded-xl p-6"
             >
               <h3 className="text-foreground font-bold text-sm mb-2 flex items-center gap-3">
@@ -370,45 +338,40 @@ export default function HomePage() {
                 {f.q}
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed pl-7">{f.a}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-24">
+      <section className="py-16 md:py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="glass-strong rounded-3xl p-12 relative overflow-hidden"
-          >
+          <div className="glass-strong rounded-3xl p-8 md:p-12 relative overflow-hidden">
             <div className="absolute inset-0 aurora-bg opacity-50" />
             <div className="relative z-10">
               <Award size={40} className="text-primary mx-auto mb-6" />
-              <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">Ready to Build Something Legendary?</h2>
-              <p className="text-muted-foreground mb-10 max-w-lg mx-auto">Let's discuss your project. Our team is ready to architect your next breakthrough.</p>
+              <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4">Ready to Build Something Legendary?</h2>
+              <p className="text-muted-foreground mb-10 max-w-lg mx-auto text-sm sm:text-base">Let's discuss your project. Our team is ready to architect your next breakthrough.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/contact">
                   <motion.span
-                    whileHover={{ scale: 1.04 }}
-                    className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold cursor-pointer hover:bg-primary/90 transition-all gold-glow"
+                    whileHover={{ scale: 1.03 }}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold cursor-pointer hover:bg-primary/90 transition-all gold-glow"
                   >
                     Start a Project <ArrowRight size={16} />
                   </motion.span>
                 </Link>
                 <Link href="/portfolio">
                   <motion.span
-                    whileHover={{ scale: 1.04 }}
-                    className="flex items-center gap-2 border border-border text-foreground px-8 py-4 rounded-full font-bold cursor-pointer hover:bg-secondary/50 transition-all bg-card"
+                    whileHover={{ scale: 1.03 }}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 border border-border text-foreground px-8 py-4 rounded-full font-bold cursor-pointer hover:bg-secondary/50 transition-all bg-card"
                   >
                     Browse Work
                   </motion.span>
                 </Link>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
