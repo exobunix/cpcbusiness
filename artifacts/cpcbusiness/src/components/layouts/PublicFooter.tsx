@@ -30,7 +30,7 @@ export default function PublicFooter() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="md:col-span-1">
             <div className="mb-4">
-              <img src="/logo.png" alt="CPCBusiness" className="h-10 w-auto object-contain dark:invert-[0.1]" />
+              <img src="/logo.png" alt="CPCBusiness" className="h-14 w-auto object-contain dark:invert-[0.1]" />
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
               {footerAbout}
