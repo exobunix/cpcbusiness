@@ -46,7 +46,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <div className="h-20 flex items-center justify-center bg-sidebar border-b border-sidebar-border shrink-0 px-4">
         <Link href="/">
           <div className="flex items-center gap-2 cursor-pointer select-none">
-            <img src={logoSrc} alt="CPCBusiness" className={`h-15 w-auto object-contain ${isDefaultLogo ? "brightness-0 invert" : ""}`} />
+            <img src={logoSrc} alt="CPCBusiness" style={{ height: `${settings?.logoHeightSidebar || 60}px` }} className={`w-auto object-contain ${isDefaultLogo ? "brightness-0 invert" : ""}`} />
             <span className="text-[10px] font-bold text-primary/70 border border-primary/20 px-1 py-0.2 rounded-full shrink-0">Portal</span>
           </div>
         </Link>

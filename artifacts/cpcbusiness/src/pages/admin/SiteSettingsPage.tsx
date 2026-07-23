@@ -51,6 +51,8 @@ export default function SiteSettingsPage() {
     logoText: "CPC",
     logoHighlight: "BUSINESS",
     logoUrl: "",
+    logoHeight: 56,
+    logoHeightSidebar: 60,
     headerAnnouncement: "Enterprise Digital Agency Platform",
     headerTitle: "Build the Future",
     headerSubtitle: "Digital Empire",
@@ -377,11 +379,33 @@ export default function SiteSettingsPage() {
                         </label>
                       </div>
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1.5 block">Logo Height - Website Header (px)</label>
+                        <input
+                          type="number"
+                          value={form.logoHeight || 56}
+                          onChange={(e) => setForm({ ...form, logoHeight: parseInt(e.target.value) || 56 })}
+                          placeholder="e.g. 56"
+                          className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1.5 block">Logo Height - Sidebar Headers (px)</label>
+                        <input
+                          type="number"
+                          value={form.logoHeightSidebar || 60}
+                          onChange={(e) => setForm({ ...form, logoHeightSidebar: parseInt(e.target.value) || 60 })}
+                          placeholder="e.g. 60"
+                          className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50"
+                        />
+                      </div>
+                    </div>
                      <div className="p-4 bg-white/5 rounded-xl border border-white/10 mt-6">
                       <label className="text-xs text-gray-500 uppercase tracking-widest block mb-2">Live Logo Preview</label>
                       {form.logoUrl ? (
-                        <div className="bg-slate-900 p-4 rounded-lg flex items-center justify-center">
-                          <img src={form.logoUrl} alt="Logo Preview" className="h-16 w-auto object-contain" />
+                        <div className="bg-slate-900 p-4 rounded-lg flex items-center justify-center animate-fadeIn">
+                          <img src={form.logoUrl} alt="Logo Preview" style={{ height: `${form.logoHeight || 56}px` }} className="w-auto object-contain transition-all duration-300" />
                         </div>
                       ) : (
                         <div className="text-xl font-black tracking-tighter text-white">
