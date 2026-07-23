@@ -25,11 +25,11 @@ export default function PublicFooter() {
   const footerAddress = settings?.footerAddress ?? "San Francisco, CA 94102";
 
   return (
-    <footer className="border-t border-border bg-card/30 mt-24">
-      <div className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer className="border-t border-border bg-card/30 mt-8">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
-            <div className="mb-4">
+            <div className="-my-6 mb-2 overflow-hidden">
               <img src={settings?.logoUrl || "/logo.png"} alt="CPCBusiness" style={{ height: `${settings?.logoHeight || 56}px` }} className="w-auto object-contain dark:invert-[0.1]" />
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
