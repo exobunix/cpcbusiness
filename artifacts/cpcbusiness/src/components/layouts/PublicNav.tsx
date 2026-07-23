@@ -2,24 +2,35 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Zap } from "lucide-react";
+import { customFetch } from "@workspace/api-client-react";
 
 export default function PublicNav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [location] = useLocation();
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
+    
+    customFetch<any>("/api/site-settings")
+      .then(setSettings)
+      .catch(() => {});
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const links = [
-    { href: "/services", label: "Services" },
-    { href: "/portfolio", label: "Portfolio" },
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
-  ];
+  const logoText = settings?.logoText ?? "CPC";
+  const logoHighlight = settings?.logoHighlight ?? "BUSINESS";
+  const links = settings?.menuLinks && Array.isArray(settings.menuLinks) && settings.menuLinks.length > 0
+    ? settings.menuLinks
+    : [
+        { href: "/services", label: "Services" },
+        { href: "/portfolio", label: "Portfolio" },
+        { href: "/about", label: "About" },
+        { href: "/contact", label: "Contact" },
+      ];
 
   return (
     <motion.nav
@@ -33,9 +44,10 @@ export default function PublicNav() {
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <Link href="/">
           <span className="text-2xl font-black tracking-tighter text-white cursor-pointer select-none">
-            CPC<span className="text-primary">BUSINESS</span>
+            {logoText}<span className="text-primary">{logoHighlight}</span>
           </span>
         </Link>
+
 
         <div className="hidden md:flex items-center gap-8">
           {links.map((l) => (

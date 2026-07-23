@@ -1,12 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, CheckCircle2 } from "lucide-react";
 import PublicNav from "@/components/layouts/PublicNav";
 import PublicFooter from "@/components/layouts/PublicFooter";
+import { customFetch } from "@workspace/api-client-react";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    customFetch<any>("/api/site-settings")
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
+
+  const footerEmail = settings?.footerEmail ?? "hello@cpcbusiness.com";
+  const footerPhone = settings?.footerPhone ?? "+1 (800) CPC-BIZZ";
+  const footerAddress = settings?.footerAddress ?? "San Francisco, CA 94102";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +46,9 @@ export default function ContactPage() {
           <h2 className="text-2xl font-black text-white mb-6">Get in Touch</h2>
           <div className="space-y-5">
             {[
-              { icon: Mail, label: "Email", value: "hello@cpcbusiness.com" },
-              { icon: Phone, label: "Phone", value: "+1 (800) CPC-BIZZ" },
-              { icon: MapPin, label: "Address", value: "123 Enterprise Blvd, San Francisco, CA 94102" },
+              { icon: Mail, label: "Email", value: footerEmail },
+              { icon: Phone, label: "Phone", value: footerPhone },
+              { icon: MapPin, label: "Address", value: footerAddress },
             ].map((c) => (
               <div key={c.label} className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
@@ -49,6 +61,7 @@ export default function ContactPage() {
               </div>
             ))}
           </div>
+
 
           <div className="mt-10 glass rounded-xl p-5">
             <h3 className="text-white font-bold mb-1">Schedule a Discovery Call</h3>

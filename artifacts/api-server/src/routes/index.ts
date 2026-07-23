@@ -16,6 +16,7 @@ import notificationsRouter from "./notifications";
 import aiRouter from "./ai";
 import imagekitRouter from "./imagekit";
 import usersRouter from "./users";
+import siteSettingsRouter from "./site-settings";
 
 const router: IRouter = Router();
 
@@ -36,5 +37,7 @@ router.use(notificationsRouter);
 router.use(aiRouter);
 router.use(imagekitRouter);
 router.use(usersRouter);
+router.use(siteSettingsRouter);
 
 export default router;
+

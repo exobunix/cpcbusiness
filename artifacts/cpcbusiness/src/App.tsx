@@ -25,8 +25,10 @@ import ServicesCMSPage from "@/pages/admin/ServicesCMSPage";
 import PortfolioCMSPage from "@/pages/admin/PortfolioCMSPage";
 import AIPage from "@/pages/admin/AIPage";
 import MessagesPage from "@/pages/admin/MessagesPage";
+import SiteSettingsPage from "@/pages/admin/SiteSettingsPage";
 
 import UsersPage from "@/pages/admin/UsersPage";
+
 
 import ClientDashboardPage from "@/pages/client/ClientDashboardPage";
 import ClientProjectsPage from "@/pages/client/ClientProjectsPage";
@@ -117,6 +119,10 @@ function Router() {
       <Route path="/admin/messages">
         {() => <AdminRoute component={MessagesPage} />}
       </Route>
+      <Route path="/admin/site-settings">
+        {() => <AdminRoute component={SiteSettingsPage} />}
+      </Route>
+
 
       {/* Client Portal */}
       <Route path="/client">

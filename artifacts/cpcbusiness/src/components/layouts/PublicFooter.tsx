@@ -1,23 +1,52 @@
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Mail, Phone, MapPin } from "lucide-react";
+import { customFetch } from "@workspace/api-client-react";
 
 export default function PublicFooter() {
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    customFetch<any>("/api/site-settings")
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
+
+  const logoText = settings?.logoText ?? "CPC";
+  const logoHighlight = settings?.logoHighlight ?? "BUSINESS";
+  const footerAbout = settings?.footerAbout ?? "Enterprise-grade digital solutions for ambitious companies worldwide.";
+  const footerCopyright = settings?.footerCopyright ?? "© 2026 CPCBusiness. All rights reserved.";
+  
+  const socialTwitter = settings?.socialTwitter ?? "https://x.com";
+  const socialLinkedin = settings?.socialLinkedin ?? "https://linkedin.com";
+  const socialGithub = settings?.socialGithub ?? "https://github.com";
+  const socialInstagram = settings?.socialInstagram ?? "https://instagram.com";
+
+  const footerEmail = settings?.footerEmail ?? "hello@cpcbusiness.com";
+  const footerPhone = settings?.footerPhone ?? "+1 (800) CPC-BIZZ";
+  const footerAddress = settings?.footerAddress ?? "San Francisco, CA 94102";
+
   return (
     <footer className="border-t border-white/5 bg-black/50 mt-24">
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="md:col-span-1">
             <div className="text-2xl font-black tracking-tighter text-white mb-4">
-              CPC<span className="text-primary">BUSINESS</span>
+              {logoText}<span className="text-primary">{logoHighlight}</span>
             </div>
             <p className="text-gray-500 text-sm leading-relaxed">
-              Enterprise-grade digital solutions for ambitious companies worldwide.
+              {footerAbout}
             </p>
             <div className="mt-6 flex gap-3">
-              {["X", "Li", "Gh", "Dr"].map((s) => (
-                <div key={s} className="w-9 h-9 rounded-lg border border-white/10 flex items-center justify-center text-xs text-gray-500 hover:border-primary hover:text-primary cursor-pointer transition-colors">
-                  {s}
-                </div>
+              {[
+                { label: "X", url: socialTwitter },
+                { label: "Li", url: socialLinkedin },
+                { label: "Gh", url: socialGithub },
+                { label: "In", url: socialInstagram },
+              ].map((s) => (
+                <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg border border-white/10 flex items-center justify-center text-xs text-gray-500 hover:border-primary hover:text-primary cursor-pointer transition-colors">
+                  {s.label}
+                </a>
               ))}
             </div>
           </div>
@@ -58,15 +87,15 @@ export default function PublicFooter() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-gray-500 text-sm">
                 <Mail size={14} className="mt-0.5 text-primary shrink-0" />
-                hello@cpcbusiness.com
+                {footerEmail}
               </li>
               <li className="flex items-start gap-3 text-gray-500 text-sm">
                 <Phone size={14} className="mt-0.5 text-primary shrink-0" />
-                +1 (800) CPC-BIZZ
+                {footerPhone}
               </li>
               <li className="flex items-start gap-3 text-gray-500 text-sm">
                 <MapPin size={14} className="mt-0.5 text-primary shrink-0" />
-                San Francisco, CA 94102
+                {footerAddress}
               </li>
             </ul>
             <Link href="/contact">
@@ -78,7 +107,7 @@ export default function PublicFooter() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-gray-600 text-xs">
-          <span>© 2026 CPCBusiness. All rights reserved.</span>
+          <span>{footerCopyright}</span>
           <div className="flex gap-6">
             <span className="hover:text-gray-400 cursor-pointer">Privacy Policy</span>
             <span className="hover:text-gray-400 cursor-pointer">Terms of Service</span>
@@ -89,3 +118,4 @@ export default function PublicFooter() {
     </footer>
   );
 }
+

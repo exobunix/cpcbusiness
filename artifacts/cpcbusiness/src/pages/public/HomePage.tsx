@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import PublicNav from "@/components/layouts/PublicNav";
 import PublicFooter from "@/components/layouts/PublicFooter";
-import { useGetServices, useGetPortfolioItems } from "@workspace/api-client-react";
+import { useGetServices, useGetPortfolioItems, customFetch } from "@workspace/api-client-react";
 
 const stats = [
   { value: "500+", label: "Projects Delivered" },
@@ -43,11 +43,30 @@ const serviceIcons: Record<string, any> = {
 };
 
 export default function HomePage() {
+
   const { data: services } = useGetServices();
   const { data: portfolio } = useGetPortfolioItems();
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    customFetch<any>("/api/site-settings")
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
+
+  const headerAnnouncement = settings?.headerAnnouncement ?? "Enterprise Digital Agency Platform";
+  const headerTitle = settings?.headerTitle ?? "Build the Future";
+  const headerSubtitle = settings?.headerSubtitle ?? "Digital Empire";
+  const headerDescription = settings?.headerDescription ?? "We architect world-class digital solutions — from enterprise SaaS to AI-powered platforms — that define industries and outlast trends.";
+  const headerCtaText = settings?.headerCtaText ?? "Explore Services";
+  const headerCtaLink = settings?.headerCtaLink ?? "/services";
+  const headerSecondaryCtaText = settings?.headerSecondaryCtaText ?? "View Portfolio";
+  const headerSecondaryCtaLink = settings?.headerSecondaryCtaLink ?? "/portfolio";
+
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -71,7 +90,7 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
           >
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-semibold tracking-wider uppercase mb-8">
-              <Zap size={12} /> Enterprise Digital Agency Platform
+              <Zap size={12} /> {headerAnnouncement}
             </span>
           </motion.div>
 
@@ -81,8 +100,8 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.9] mb-8"
           >
-            Build the Future<br />
-            <span className="gradient-text">Digital Empire</span>
+            {headerTitle}<br />
+            <span className="gradient-text">{headerSubtitle}</span>
           </motion.h1>
 
           <motion.p
@@ -91,7 +110,7 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-12"
           >
-            We architect world-class digital solutions — from enterprise SaaS to AI-powered platforms — that define industries and outlast trends.
+            {headerDescription}
           </motion.p>
 
           <motion.div
@@ -100,26 +119,27 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Link href="/services">
+            <Link href={headerCtaLink}>
               <motion.span
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-bold text-sm cursor-pointer emerald-glow hover:bg-primary/90 transition-all"
               >
-                Explore Services <ArrowRight size={16} />
+                {headerCtaText} <ArrowRight size={16} />
               </motion.span>
             </Link>
-            <Link href="/portfolio">
+            <Link href={headerSecondaryCtaLink}>
               <motion.span
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 className="flex items-center gap-2 border border-white/10 text-white px-8 py-4 rounded-full font-bold text-sm cursor-pointer hover:bg-white/5 transition-all"
               >
-                View Portfolio
+                {headerSecondaryCtaText}
               </motion.span>
             </Link>
           </motion.div>
         </motion.div>
+
 
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
           <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="w-5 h-8 border-2 border-white/10 rounded-full flex justify-center pt-1.5">

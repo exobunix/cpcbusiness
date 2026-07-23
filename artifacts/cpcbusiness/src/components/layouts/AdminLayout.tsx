@@ -22,7 +22,9 @@ const navItems = [
   { icon: Image, label: "Portfolio CMS", href: "/admin/portfolio" },
   { icon: Bot, label: "AI Center", href: "/admin/ai" },
   { icon: MessageSquare, label: "Messages", href: "/admin/messages" },
+  { icon: Settings, label: "Site Settings", href: "/admin/site-settings" },
 ];
+
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
