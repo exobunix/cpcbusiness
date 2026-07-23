@@ -329,4 +329,70 @@ export const memoryStore = {
       createdAt: new Date().toISOString(),
     },
   ],
+  siteSettings: {
+    logoText: "CPC",
+    logoHighlight: "BUSINESS",
+    logoUrl: "",
+    headerAnnouncement: "Enterprise Digital Agency Platform",
+    headerTitle: "Build the Future",
+    headerSubtitle: "Digital Empire",
+    headerDescription: "We architect world-class digital solutions — from enterprise SaaS to AI-powered platforms — that define industries and outlast trends.",
+    headerCtaText: "Explore Services",
+    headerCtaLink: "/services",
+    headerSecondaryCtaText: "View Portfolio",
+    headerSecondaryCtaLink: "/portfolio",
+    footerAbout: "Enterprise-grade digital solutions for ambitious companies worldwide.",
+    footerCopyright: "© 2026 CPCBusiness. All rights reserved.",
+    footerEmail: "hello@cpcbusiness.com",
+    footerPhone: "+1 (800) CPC-BIZZ",
+    footerAddress: "San Francisco, CA 94102",
+    socialTwitter: "https://x.com",
+    socialLinkedin: "https://linkedin.com",
+    socialGithub: "https://github.com",
+    socialInstagram: "https://instagram.com",
+    menuLinks: [
+      { label: "Services", href: "/services" },
+      { label: "Portfolio", href: "/portfolio" },
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" }
+    ],
+    bannerImages: { heroBg: "", aboutBanner: "", servicesBanner: "" },
+    homeStats: [
+      { value: "500+", label: "Projects Delivered" },
+      { value: "200+", label: "Enterprise Clients" },
+      { value: "10+", label: "Years Experience" },
+      { value: "99%", label: "Client Satisfaction" }
+    ],
+    homeTechs: ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS", "Docker", "Python", "GraphQL", "Kubernetes", "TensorFlow", "Next.js", "MongoDB"],
+    homeTestimonials: [
+      { name: "Sarah Chen", role: "CTO, Nexus Corp", text: "CPCBusiness transformed our entire digital infrastructure. The quality of their work is unparalleled.", rating: 5 },
+      { name: "Marcus Williams", role: "CEO, Orbital Ventures", text: "Working with CPCBusiness felt like having a world-class tech team as an extension of our own.", rating: 5 },
+      { name: "Priya Patel", role: "VP Engineering, DataStream", text: "Their AI solutions gave us a 3x increase in operational efficiency. Absolutely remarkable team.", rating: 5 }
+    ],
+    homeFaqs: [
+      { q: "What industries do you specialize in?", a: "We serve fintech, healthcare, SaaS, e-commerce, logistics, and enterprise software sectors." },
+      { q: "How long does a typical project take?", a: "Projects range from 4 weeks (MVP) to 12+ months for enterprise platforms. We provide detailed timelines during discovery." },
+      { q: "Do you offer ongoing support?", a: "Yes — we provide 24/7 support packages, dedicated DevOps, and continuous feature development." },
+      { q: "What makes CPCBusiness different?", a: "We combine senior engineering talent with world-class design to deliver software that's both technically excellent and beautifully crafted." }
+    ],
+    aboutTitle: "We Build Digital Empires",
+    aboutDescription: "Founded in 2014, CPCBusiness has grown from a 3-person boutique agency to a 50+ strong enterprise digital powerhouse trusted by companies in 30+ countries.",
+    aboutMission: "To empower ambitious companies with world-class digital solutions that drive measurable growth and lasting competitive advantage.",
+    aboutVision: "To be the most trusted enterprise technology partner in the world — where innovation meets execution and every build becomes a landmark.",
+    aboutValues: [
+      { title: "Excellence", desc: "We set the bar high and clear it every time — no exceptions." },
+      { title: "Precision", desc: "Every decision is deliberate. Every line of code is intentional." },
+      { title: "Partnership", desc: "We don't just build for you — we build with you." },
+      { title: "Integrity", desc: "Transparent communication, honest timelines, real results." }
+    ],
+    aboutTeam: [
+      { name: "Alex Petrov", role: "CEO & Co-Founder", dept: "Executive" },
+      { name: "Sarah Kim", role: "CTO & Co-Founder", dept: "Engineering" },
+      { name: "Marcus Johnson", role: "Head of Design", dept: "Design" },
+      { name: "Priya Sharma", role: "VP Engineering", dept: "Engineering" },
+      { name: "David Chen", role: "Head of AI", dept: "AI" },
+      { name: "Emma Wilson", role: "Head of Operations", dept: "Operations" }
+    ]
+  }
 };
+
