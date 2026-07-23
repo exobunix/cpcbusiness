@@ -1,19 +1,17 @@
 import { Router } from "express";
-import { db, siteSettingsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { MongoSiteSettings } from "../lib/store";
 import { logger } from "../lib/logger";
 
 const router = Router();
 
 router.get("/site-settings", async (_req, res) => {
   try {
-    const settings = await db.select().from(siteSettingsTable).where(eq(siteSettingsTable.id, 1)).limit(1);
-    if (!settings || settings.length === 0) {
-      // Seed default settings by inserting with just the ID
-      const [inserted] = await db.insert(siteSettingsTable).values({ id: 1 }).returning();
-      return res.json(inserted);
+    let settings = await MongoSiteSettings.findOne({ id: 1 }).lean();
+    if (!settings) {
+      // Seed default settings by inserting a document with id 1
+      settings = await MongoSiteSettings.create({ id: 1 });
     }
-    return res.json(settings[0]);
+    return res.json(settings);
   } catch (err) {
     logger.error({ err }, "Get site settings error");
     return res.status(500).json({ error: "Internal server error" });
@@ -23,26 +21,41 @@ router.get("/site-settings", async (_req, res) => {
 router.patch("/site-settings", async (req, res) => {
   try {
     const updateData = { ...req.body, updatedAt: new Date() };
-    delete updateData.id; // ensure ID cannot be altered
+    delete updateData.id;
+    delete updateData._id;
 
-    // Support JSON updates since drizzle/pg handles strings differently sometimes
+    // Parse JSON lists safely if passed as strings
     if (typeof updateData.menuLinks === "string") {
-      try {
-        updateData.menuLinks = JSON.parse(updateData.menuLinks);
-      } catch (e) {}
+      try { updateData.menuLinks = JSON.parse(updateData.menuLinks); } catch (e) {}
     }
     if (typeof updateData.bannerImages === "string") {
-      try {
-        updateData.bannerImages = JSON.parse(updateData.bannerImages);
-      } catch (e) {}
+      try { updateData.bannerImages = JSON.parse(updateData.bannerImages); } catch (e) {}
+    }
+    if (typeof updateData.homeStats === "string") {
+      try { updateData.homeStats = JSON.parse(updateData.homeStats); } catch (e) {}
+    }
+    if (typeof updateData.homeTechs === "string") {
+      try { updateData.homeTechs = JSON.parse(updateData.homeTechs); } catch (e) {}
+    }
+    if (typeof updateData.homeTestimonials === "string") {
+      try { updateData.homeTestimonials = JSON.parse(updateData.homeTestimonials); } catch (e) {}
+    }
+    if (typeof updateData.homeFaqs === "string") {
+      try { updateData.homeFaqs = JSON.parse(updateData.homeFaqs); } catch (e) {}
+    }
+    if (typeof updateData.aboutValues === "string") {
+      try { updateData.aboutValues = JSON.parse(updateData.aboutValues); } catch (e) {}
+    }
+    if (typeof updateData.aboutTeam === "string") {
+      try { updateData.aboutTeam = JSON.parse(updateData.aboutTeam); } catch (e) {}
     }
 
-    const [row] = await db.update(siteSettingsTable).set(updateData).where(eq(siteSettingsTable.id, 1)).returning();
-    if (!row) {
-      const [inserted] = await db.insert(siteSettingsTable).values({ id: 1, ...updateData }).returning();
-      return res.json(inserted);
-    }
-    return res.json(row);
+    const settings = await MongoSiteSettings.findOneAndUpdate(
+      { id: 1 },
+      { $set: updateData },
+      { new: true, upsert: true, lean: true }
+    );
+    return res.json(settings);
   } catch (err) {
     logger.error({ err }, "Update site settings error");
     return res.status(500).json({ error: "Internal server error" });
