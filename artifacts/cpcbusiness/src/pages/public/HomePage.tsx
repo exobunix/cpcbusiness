@@ -100,7 +100,7 @@ export default function HomePage() {
       <PublicNav />
 
       {/* HERO */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+      <section ref={heroRef} className="relative overflow-hidden pt-36 pb-16">
         {/* animated bg */}
         <div className="absolute inset-0 aurora-bg" />
         <div className="absolute inset-0">
@@ -166,12 +166,6 @@ export default function HomePage() {
             </Link>
           </motion.div>
         </motion.div>
-
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
-          <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="w-5 h-8 border-2 border-border rounded-full flex justify-center pt-1.5">
-            <div className="w-1 h-2 bg-primary rounded-full" />
-          </motion.div>
-        </div>
       </section>
 
       {/* STATS */}
